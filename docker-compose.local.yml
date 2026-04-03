@@ -1,6 +1,6 @@
 services:
   workout-tracker:
-    image: workout-tracker:local
+    pull_policy: build
     build:
       context: .
       dockerfile: DockerFile
