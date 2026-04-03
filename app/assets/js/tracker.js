@@ -78,10 +78,12 @@
             }
 
             const table = document.createElement("table");
+            table.className = "exercise-table";
             const thead = document.createElement("thead");
             const headRow = document.createElement("tr");
+            const setKeys = Object.keys(exercise.sets[0]);
 
-            Object.keys(exercise.sets[0]).forEach((key) => {
+            setKeys.forEach((key) => {
                 const th = document.createElement("th");
                 th.textContent = key;
                 headRow.appendChild(th);
@@ -93,10 +95,12 @@
             const tbody = document.createElement("tbody");
             exercise.sets.forEach((setItem, setIndex) => {
                 const row = document.createElement("tr");
-                Object.keys(setItem).forEach((key) => {
+                setKeys.forEach((key) => {
                     const cell = document.createElement("td");
+                    cell.dataset.label = key;
                     const input = document.createElement("input");
                     input.value = setItem[key] || "";
+                    input.setAttribute("aria-label", exercise.name + " " + key + " set " + (setIndex + 1));
                     input.onchange = async (e) => {
                         exercise.sets[setIndex][key] = e.target.value;
                         await updateProgramOnServer();

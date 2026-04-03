@@ -82,6 +82,7 @@ body {
 
 .content {
     padding: 24px;
+    min-width: 0;
 }
 
 h1 {
@@ -117,6 +118,7 @@ h2 {
     border-radius: 10px;
     padding: 12px;
     min-width: 220px;
+    flex: 1 1 220px;
 }
 
 select, input, button, textarea {
@@ -125,6 +127,7 @@ select, input, button, textarea {
     border-radius: 6px;
     border: 1px solid #c6cfda;
     font-size: 14px;
+    max-width: 100%;
 }
 
 button {
@@ -152,12 +155,14 @@ table {
     width: 100%;
     margin-bottom: 8px;
     background: white;
+    table-layout: fixed;
 }
 
 th, td {
     border: 1px solid #d6dde8;
     padding: 8px;
     text-align: center;
+    overflow-wrap: anywhere;
 }
 
 th {
@@ -166,12 +171,13 @@ th {
 }
 
 td input {
-    width: 70px;
+    width: 100%;
+    min-width: 0;
     text-align: center;
 }
 
 #weekSelect, #daySelect {
-    width: 220px;
+    width: 100%;
 }
 
 .note {
@@ -227,6 +233,10 @@ td input {
     margin-top: 8px;
 }
 
+.button-row button {
+    flex: 1 1 180px;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(2px); }
     to { opacity: 1; transform: translateY(0); }
@@ -247,15 +257,139 @@ td input {
         flex-wrap: wrap;
     }
 
+    .nav-link {
+        flex: 1 1 160px;
+        text-align: center;
+    }
+
     .content {
         padding: 18px;
     }
 
-    table, th, td, input {
-        font-size: 12px;
+    .control-block {
+        min-width: 0;
     }
 
-    td input {
-        width: 50px;
+    .json-box {
+        min-height: 180px;
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        background: linear-gradient(180deg, #eef3f8 0%, #f8fafc 100%);
+    }
+
+    .sidebar {
+        padding: 16px 14px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .brand {
+        margin-bottom: 14px;
+        font-size: 17px;
+    }
+
+    .nav-list {
+        gap: 6px;
+    }
+
+    .nav-link {
+        flex: 1 1 100%;
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .content {
+        padding: 14px;
+    }
+
+    h1 {
+        margin-bottom: 16px;
+        font-size: 28px;
+        line-height: 1.1;
+    }
+
+    h2 {
+        font-size: 15px;
+    }
+
+    .control-row {
+        gap: 12px;
+    }
+
+    .control-block,
+    .program-card,
+    .link-card {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .button-row {
+        flex-direction: column;
+    }
+
+    .button-row button,
+    #uploadBtn,
+    #uploadFile,
+    select,
+    textarea {
+        width: 100%;
+    }
+
+    .exercise-table,
+    .exercise-table thead,
+    .exercise-table tbody,
+    .exercise-table tr,
+    .exercise-table th,
+    .exercise-table td {
+        display: block;
+    }
+
+    .exercise-table {
+        background: transparent;
+        border-collapse: separate;
+        margin-bottom: 0;
+    }
+
+    .exercise-table thead {
+        display: none;
+    }
+
+    .exercise-table tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .exercise-table tr {
+        background: #f8fbff;
+        border: 1px solid #d6dde8;
+        border-radius: 10px;
+        padding: 8px;
+    }
+
+    .exercise-table td {
+        border: none;
+        padding: 6px 0;
+        text-align: left;
+    }
+
+    .exercise-table td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 4px;
+        color: #4e6279;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .exercise-table td input {
+        text-align: left;
+        min-height: 40px;
+        padding: 9px 10px;
     }
 }
