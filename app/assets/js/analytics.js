@@ -288,6 +288,10 @@
         title.textContent = yAxisLabel;
         svg.appendChild(title);
 
+        function formatValue(value) {
+            return Number.isInteger(value) ? String(value) : value.toFixed(1);
+        }
+
         series.forEach((entry) => {
             const visiblePoints = entry.points.filter((point) => point.y !== null);
             if (!visiblePoints.length) {
@@ -305,13 +309,30 @@
             svg.appendChild(path);
 
             visiblePoints.forEach((point) => {
+                const pointGroup = document.createElementNS(ns, "g");
+                pointGroup.setAttribute("class", "chart-point-group");
+
+                const tooltip = document.createElementNS(ns, "title");
+                tooltip.textContent = entry.label + " | Week " + point.x + " | " + formatValue(point.y);
+                pointGroup.appendChild(tooltip);
+
+                const hitArea = document.createElementNS(ns, "circle");
+                hitArea.setAttribute("cx", xScale(point.x));
+                hitArea.setAttribute("cy", yScale(point.y));
+                hitArea.setAttribute("r", 12);
+                hitArea.setAttribute("fill", "transparent");
+                hitArea.setAttribute("class", "chart-point-hit");
+                pointGroup.appendChild(hitArea);
+
                 const circle = document.createElementNS(ns, "circle");
                 circle.setAttribute("cx", xScale(point.x));
                 circle.setAttribute("cy", yScale(point.y));
                 circle.setAttribute("r", 4);
                 circle.setAttribute("fill", entry.color);
                 circle.setAttribute("class", "chart-point");
-                svg.appendChild(circle);
+                pointGroup.appendChild(circle);
+
+                svg.appendChild(pointGroup);
             });
         });
 

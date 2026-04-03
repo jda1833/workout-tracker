@@ -373,6 +373,10 @@ td input {
     stroke-width: 2;
 }
 
+.chart-point-hit {
+    cursor: pointer;
+}
+
 .chart-grid-line {
     stroke: #dfe7f0;
     stroke-width: 1;
