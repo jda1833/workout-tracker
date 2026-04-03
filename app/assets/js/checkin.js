@@ -69,54 +69,6 @@
         return "";
     }
 
-    function buildRecoveryNotes(notes) {
-        const parts = [];
-
-        if (notes.hardest_lift) {
-            parts.push("Hardest lift: " + notes.hardest_lift);
-        }
-        if (notes.pain_tightness_notes) {
-            parts.push("Pain/Tightness: " + notes.pain_tightness_notes);
-        }
-        if (notes.recovery_notes) {
-            parts.push("Recovery: " + notes.recovery_notes);
-        }
-
-        return parts.join(" | ");
-    }
-
-    function buildAdditionalNotes(programData) {
-        const parts = [];
-
-        if (programData.week_type) {
-            parts.push("Week Type: " + programData.week_type);
-        }
-        if (programData.amrap_rule) {
-            parts.push("AMRAP Rule: " + programData.amrap_rule);
-        }
-        if (programData.weekly_notes && programData.weekly_notes.general_notes) {
-            parts.push("General: " + programData.weekly_notes.general_notes);
-        }
-
-        return parts.join(" | ");
-    }
-
-    function buildAccessoryNotes(entry) {
-        const topSet = getTopSet(entry.exercise);
-        const parts = [entry.day, entry.focus, entry.exercise.name].filter(Boolean);
-        const reps = getFirstPresentValue(topSet, ["actual_reps", "target_reps", "reps"]);
-        const rpe = getFirstPresentValue(topSet, ["RPE"]);
-
-        if (reps) {
-            parts.push("Top set reps: " + reps);
-        }
-        if (rpe) {
-            parts.push("RPE: " + rpe);
-        }
-
-        return parts.join(" | ");
-    }
-
     function buildCheckInFromProgram(program) {
         const data = cloneTemplate();
 
@@ -124,15 +76,9 @@
             return data;
         }
 
-        const programData = program.json_data;
-        const weeklyNotes = programData.weekly_notes || {};
         const exerciseEntries = flattenExercises(program);
 
         data.week_number = String(program.week || "");
-        data.bodyweight = String(weeklyNotes.bodyweight || "");
-        data.recovery.sleep_hours = String(weeklyNotes.sleep_avg_hours || "");
-        data.recovery.overall_recovery_notes = buildRecoveryNotes(weeklyNotes);
-        data.additional_notes = buildAdditionalNotes(programData);
 
         data.main_lifts = data.main_lifts.map((liftEntry) => {
             const matchedExercise = findExerciseByMatchers(exerciseEntries, liftMatchers[liftEntry.lift] || []);
@@ -151,27 +97,6 @@
                     RPE: topSet ? topSet.RPE : "",
                 }, ["top_set_RPE", "RPE"]),
                 notes: [matchedExercise.day, matchedExercise.focus, matchedExercise.exercise.name].filter(Boolean).join(" | "),
-            };
-        });
-
-        data.accessories = data.accessories.map((accessoryEntry) => {
-            const exerciseName = normalizeText(accessoryEntry.exercise);
-            const matchedExercise = exerciseEntries.find((entry) => {
-                const name = normalizeText(entry.exercise.name);
-                if (exerciseName === "ab wheel / hanging leg raise") {
-                    return name.indexOf("ab wheel") !== -1 || name.indexOf("hanging leg raise") !== -1;
-                }
-                return name.indexOf(exerciseName) !== -1;
-            });
-
-            if (!matchedExercise) {
-                return accessoryEntry;
-            }
-
-            return {
-                exercise: accessoryEntry.exercise,
-                difficulty: "",
-                notes: buildAccessoryNotes(matchedExercise),
             };
         });
 
@@ -260,12 +185,6 @@
         fields.appendChild(createField("date", window.WorkoutApp.checkInData.date, (value) => {
             window.WorkoutApp.checkInData.date = value;
         }));
-        fields.appendChild(createField("bodyweight", window.WorkoutApp.checkInData.bodyweight, (value) => {
-            window.WorkoutApp.checkInData.bodyweight = value;
-        }));
-        fields.appendChild(createField("additional_notes", window.WorkoutApp.checkInData.additional_notes, (value) => {
-            window.WorkoutApp.checkInData.additional_notes = value;
-        }, true));
 
         card.appendChild(fields);
         container.appendChild(card);
@@ -307,59 +226,11 @@
         container.appendChild(card);
     }
 
-    function renderAccessories(container) {
-        const card = createCard("Accessories");
-        const stack = document.createElement("div");
-        stack.className = "checkin-stack";
-
-        window.WorkoutApp.checkInData.accessories.forEach((accessory) => {
-            const accessoryCard = document.createElement("div");
-            accessoryCard.className = "program-card";
-
-            const heading = document.createElement("h3");
-            heading.textContent = accessory.exercise;
-            accessoryCard.appendChild(heading);
-
-            const fields = document.createElement("div");
-            fields.className = "checkin-fields";
-            fields.appendChild(createField("difficulty", accessory.difficulty, (value) => {
-                accessory.difficulty = value;
-            }));
-            fields.appendChild(createField("notes", accessory.notes, (value) => {
-                accessory.notes = value;
-            }, true));
-
-            accessoryCard.appendChild(fields);
-            stack.appendChild(accessoryCard);
-        });
-
-        card.appendChild(stack);
-        container.appendChild(card);
-    }
-
-    function renderRecovery(container) {
-        const card = createCard("Recovery");
-        const fields = document.createElement("div");
-        fields.className = "checkin-fields";
-
-        Object.keys(window.WorkoutApp.checkInData.recovery).forEach((key) => {
-            const isTextarea = key.indexOf("notes") !== -1;
-            fields.appendChild(createField(key, window.WorkoutApp.checkInData.recovery[key], (value) => {
-                window.WorkoutApp.checkInData.recovery[key] = value;
-            }, isTextarea));
-        });
-
-        card.appendChild(fields);
-        container.appendChild(card);
-    }
-
     function renderCheckInForm() {
         const container = document.getElementById("checkInForm");
         container.innerHTML = "";
         renderGeneralInfo(container);
         renderMainLifts(container);
-        renderAccessories(container);
-        renderRecovery(container);
         updateTextarea();
     }
 

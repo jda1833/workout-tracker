@@ -57,22 +57,24 @@
         }
 
         const notes = parsed.weekly_notes;
-        if (!notes || typeof notes !== "object" || Array.isArray(notes)) {
-            return "JSON must include a 'weekly_notes' object.";
-        }
+        if (notes !== undefined) {
+            if (!notes || typeof notes !== "object" || Array.isArray(notes)) {
+                return "'weekly_notes' must be an object when provided.";
+            }
 
-        const noteKeys = [
-            "bodyweight",
-            "sleep_avg_hours",
-            "hardest_lift",
-            "pain_tightness_notes",
-            "recovery_notes",
-            "general_notes",
-        ];
+            const noteKeys = [
+                "bodyweight",
+                "sleep_avg_hours",
+                "hardest_lift",
+                "pain_tightness_notes",
+                "recovery_notes",
+                "general_notes",
+            ];
 
-        for (const key of noteKeys) {
-            if (!(key in notes)) {
-                return "weekly_notes." + key + " is required.";
+            for (const key of noteKeys) {
+                if (!(key in notes)) {
+                    return "weekly_notes." + key + " is required when 'weekly_notes' is provided.";
+                }
             }
         }
 

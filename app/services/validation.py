@@ -51,18 +51,19 @@ def validate_program_payload(data: dict):
                     errors.append(f"'days[{i}].exercises[{j}].sets' must be a non-empty array.")
 
     weekly_notes = data.get("weekly_notes")
-    if not isinstance(weekly_notes, dict):
-        errors.append("'weekly_notes' must be an object.")
-    else:
-        for key in (
-            "bodyweight",
-            "sleep_avg_hours",
-            "hardest_lift",
-            "pain_tightness_notes",
-            "recovery_notes",
-            "general_notes",
-        ):
-            if key not in weekly_notes:
-                errors.append(f"'weekly_notes.{key}' is required.")
+    if weekly_notes is not None:
+        if not isinstance(weekly_notes, dict):
+            errors.append("'weekly_notes' must be an object when provided.")
+        else:
+            for key in (
+                "bodyweight",
+                "sleep_avg_hours",
+                "hardest_lift",
+                "pain_tightness_notes",
+                "recovery_notes",
+                "general_notes",
+            ):
+                if key not in weekly_notes:
+                    errors.append(f"'weekly_notes.{key}' is required when 'weekly_notes' is provided.")
 
     return errors

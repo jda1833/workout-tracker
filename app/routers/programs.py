@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..dependencies import get_db
 from .. import models
+from ..services.validation import validate_program_payload
 
 router = APIRouter()
 
@@ -25,6 +26,21 @@ def update_program(program_id: int, json_data: dict, db: Session = Depends(get_d
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
+
+    validation_errors = validate_program_payload(json_data)
+    if validation_errors:
+        raise HTTPException(status_code=400, detail=validation_errors)
+
+    next_week = json_data["week"]
+    existing_program = (
+        db.query(models.Program)
+        .filter(models.Program.week == next_week, models.Program.id != program_id)
+        .first()
+    )
+    if existing_program:
+        raise HTTPException(status_code=400, detail=f"Week {next_week} already exists.")
+
+    program.week = next_week
     program.json_data = json_data
     db.commit()
     db.refresh(program)
