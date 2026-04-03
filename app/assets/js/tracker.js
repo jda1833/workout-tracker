@@ -1,0 +1,143 @@
+(function () {
+    async function loadPrograms() {
+        const res = await fetch("/programs/");
+        window.WorkoutApp.programs = await res.json();
+
+        const weekSelect = document.getElementById("weekSelect");
+        weekSelect.innerHTML = "";
+
+        window.WorkoutApp.programs.forEach((program) => {
+            const option = document.createElement("option");
+            option.value = program.week;
+            option.textContent = "Week " + program.week;
+            weekSelect.appendChild(option);
+        });
+
+        if (window.WorkoutApp.programs.length) {
+            window.WorkoutApp.selectedWeek = window.WorkoutApp.programs[0].week;
+            weekSelect.value = window.WorkoutApp.selectedWeek;
+            populateDays();
+        } else {
+            document.getElementById("dayContainer").innerHTML = "<p class='note'>No programs found yet. Use Upload Program to add one.</p>";
+        }
+    }
+
+    function populateDays() {
+        const daySelect = document.getElementById("daySelect");
+        daySelect.innerHTML = "";
+
+        const weekData = window.WorkoutApp.programs.find((p) => p.week === window.WorkoutApp.selectedWeek);
+        if (!weekData || !weekData.json_data || !Array.isArray(weekData.json_data.days)) {
+            document.getElementById("dayContainer").innerHTML = "<p class='note'>This program has no valid day data.</p>";
+            return;
+        }
+
+        weekData.json_data.days.forEach((day, idx) => {
+            const option = document.createElement("option");
+            option.value = idx;
+            option.textContent = day.day + " (" + day.focus + ")";
+            daySelect.appendChild(option);
+        });
+
+        window.WorkoutApp.selectedDayIndex = 0;
+        daySelect.value = 0;
+        showDay();
+    }
+
+    function showDay() {
+        const container = document.getElementById("dayContainer");
+        container.innerHTML = "";
+
+        const weekData = window.WorkoutApp.programs.find((p) => p.week === window.WorkoutApp.selectedWeek);
+        if (!weekData || !weekData.json_data || !Array.isArray(weekData.json_data.days)) {
+            container.innerHTML = "<p class='note'>No day data available.</p>";
+            return;
+        }
+
+        const dayData = weekData.json_data.days[window.WorkoutApp.selectedDayIndex];
+        if (!dayData || !Array.isArray(dayData.exercises)) {
+            container.innerHTML = "<p class='note'>No exercises available for this day.</p>";
+            return;
+        }
+
+        dayData.exercises.forEach((exercise) => {
+            const card = document.createElement("div");
+            card.className = "program-card";
+
+            const header = document.createElement("h3");
+            header.textContent = exercise.name;
+            card.appendChild(header);
+
+            if (!exercise.sets || !exercise.sets.length) {
+                const empty = document.createElement("p");
+                empty.className = "note";
+                empty.textContent = "No set data available.";
+                card.appendChild(empty);
+                container.appendChild(card);
+                return;
+            }
+
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+            const headRow = document.createElement("tr");
+
+            Object.keys(exercise.sets[0]).forEach((key) => {
+                const th = document.createElement("th");
+                th.textContent = key;
+                headRow.appendChild(th);
+            });
+
+            thead.appendChild(headRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            exercise.sets.forEach((setItem, setIndex) => {
+                const row = document.createElement("tr");
+                Object.keys(setItem).forEach((key) => {
+                    const cell = document.createElement("td");
+                    const input = document.createElement("input");
+                    input.value = setItem[key] || "";
+                    input.onchange = async (e) => {
+                        exercise.sets[setIndex][key] = e.target.value;
+                        await updateProgramOnServer();
+                    };
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                });
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            card.appendChild(table);
+            container.appendChild(card);
+        });
+    }
+
+    async function updateProgramOnServer() {
+        const weekData = window.WorkoutApp.programs.find((p) => p.week === window.WorkoutApp.selectedWeek);
+        if (!weekData) {
+            return;
+        }
+
+        await fetch("/update-program/" + weekData.id, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(weekData.json_data),
+        });
+    }
+
+    function initTracker() {
+        document.getElementById("weekSelect").addEventListener("change", (e) => {
+            window.WorkoutApp.selectedWeek = parseInt(e.target.value, 10);
+            populateDays();
+        });
+
+        document.getElementById("daySelect").addEventListener("change", (e) => {
+            window.WorkoutApp.selectedDayIndex = parseInt(e.target.value, 10);
+            showDay();
+        });
+    }
+
+    window.WorkoutApp.initTracker = initTracker;
+    window.WorkoutApp.loadPrograms = loadPrograms;
+})();

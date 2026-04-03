@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Training Program</title>
+    <link rel="stylesheet" href="/assets/css/app.css" />
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <p class="brand">Workout Console</p>
+        <nav class="nav-list">
+            <button class="nav-link active" data-page="trackerPage">Program Tracker</button>
+            <button class="nav-link" data-page="uploadPage">Upload Program</button>
+            <button class="nav-link" data-page="linksPage">Other Pages</button>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section id="trackerPage" class="page active">
+            <h1>Training Program Tracker</h1>
+
+            <div class="control-row">
+                <div class="control-block">
+                    <h2>Select Week</h2>
+                    <select id="weekSelect"></select>
+                </div>
+
+                <div class="control-block">
+                    <h2>Select Day</h2>
+                    <select id="daySelect"></select>
+                </div>
+            </div>
+
+            <div id="dayContainer"></div>
+        </section>
+
+        <section id="uploadPage" class="page">
+            <h1>Upload Workout JSON</h1>
+            <p class="note">Upload a file or paste JSON matching the full weekly program format.</p>
+            <input id="uploadFile" type="file" accept=".json,application/json" />
+            <div>
+                <button id="uploadBtn" type="button">Upload</button>
+            </div>
+            <p class="note">Or paste JSON below and validate before uploading.</p>
+            <textarea id="jsonTextarea" class="json-box" placeholder='{"week": 1, "week_type": "5s Week", "training_maxes": {...}, "days": [...], "weekly_notes": {...}}'></textarea>
+            <div class="button-row">
+                <button id="loadTemplateBtn" type="button">Load Template</button>
+                <button id="validateJsonBtn" type="button">Validate JSON</button>
+                <button id="uploadPastedBtn" type="button">Upload Pasted JSON</button>
+            </div>
+            <div id="uploadStatus" class="status"></div>
+        </section>
+
+        <section id="linksPage" class="page">
+            <h1>Other Pages</h1>
+            <p class="note">Quick links to backend and API pages.</p>
+            <div class="link-grid">
+                <a class="link-card" href="/docs" target="_blank" rel="noopener noreferrer">
+                    <strong>Swagger Docs</strong><br />
+                    Open interactive API docs.
+                </a>
+                <a class="link-card" href="/redoc" target="_blank" rel="noopener noreferrer">
+                    <strong>ReDoc</strong><br />
+                    Open API reference documentation.
+                </a>
+                <a class="link-card" href="/programs/" target="_blank" rel="noopener noreferrer">
+                    <strong>Programs JSON</strong><br />
+                    View all saved programs.
+                </a>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="/assets/js/state.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script src="/assets/js/template.js"></script>
+<script src="/assets/js/tracker.js"></script>
+<script src="/assets/js/upload.js"></script>
+<script src="/assets/js/app.js"></script>
+</body>
+</html>
