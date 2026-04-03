@@ -16,6 +16,13 @@ def read_root():
     return INDEX_FILE.read_text(encoding="utf-8")
 
 
+@router.get("/check-in", response_class=HTMLResponse)
+def read_check_in():
+    if not INDEX_FILE.exists():
+        raise HTTPException(status_code=500, detail="Frontend file not found")
+    return INDEX_FILE.read_text(encoding="utf-8")
+
+
 @router.get("/favicon.ico", include_in_schema=False)
 def read_favicon():
     if not FAVICON_FILE.exists():

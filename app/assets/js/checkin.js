@@ -1,4 +1,11 @@
 (function () {
+    const liftMatchers = {
+        Squat: ["back squat", "squat (5/3/1)", "squat"],
+        "Bench Press": ["bench press", "bench (5/3/1)", "bench"],
+        Deadlift: ["deadlift (5/3/1)", "deadlift"],
+        "Overhead Press": ["overhead press", "press"],
+    };
+
     function cloneTemplate() {
         return JSON.parse(JSON.stringify(window.WeeklyCheckInTemplate));
     }
@@ -9,6 +16,159 @@
 
     function updateTextarea() {
         document.getElementById("checkInTextarea").value = JSON.stringify(window.WorkoutApp.checkInData, null, 2);
+    }
+
+    function getSelectedProgram() {
+        return window.WorkoutApp.programs.find((program) => program.week === window.WorkoutApp.selectedCheckInWeek) || null;
+    }
+
+    function normalizeText(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function flattenExercises(program) {
+        if (!program || !program.json_data || !Array.isArray(program.json_data.days)) {
+            return [];
+        }
+
+        return program.json_data.days.flatMap((day) => {
+            const exercises = Array.isArray(day.exercises) ? day.exercises : [];
+            return exercises.map((exercise) => ({
+                day: day.day,
+                focus: day.focus,
+                exercise: exercise,
+            }));
+        });
+    }
+
+    function findExerciseByMatchers(exerciseEntries, matchers) {
+        return exerciseEntries.find((entry) => {
+            const name = normalizeText(entry.exercise.name);
+            return matchers.some((matcher) => name.indexOf(matcher) !== -1);
+        }) || null;
+    }
+
+    function getTopSetValue(exercise, keys) {
+        if (!exercise || !Array.isArray(exercise.sets) || !exercise.sets.length) {
+            return "";
+        }
+
+        const topSet = exercise.sets[exercise.sets.length - 1];
+        for (const key of keys) {
+            if (topSet[key] !== undefined && topSet[key] !== null && topSet[key] !== "") {
+                return String(topSet[key]);
+            }
+        }
+
+        return "";
+    }
+
+    function buildRecoveryNotes(notes) {
+        const parts = [];
+
+        if (notes.pain_tightness_notes) {
+            parts.push("Pain/Tightness: " + notes.pain_tightness_notes);
+        }
+        if (notes.recovery_notes) {
+            parts.push("Recovery: " + notes.recovery_notes);
+        }
+
+        return parts.join(" | ");
+    }
+
+    function buildAdditionalNotes(programData) {
+        const parts = [];
+        if (programData.week_type) {
+            parts.push("Week Type: " + programData.week_type);
+        }
+        if (programData.amrap_rule) {
+            parts.push("AMRAP Rule: " + programData.amrap_rule);
+        }
+        if (programData.weekly_notes && programData.weekly_notes.general_notes) {
+            parts.push("General: " + programData.weekly_notes.general_notes);
+        }
+        return parts.join(" | ");
+    }
+
+    function buildCheckInFromProgram(program) {
+        const data = cloneTemplate();
+
+        if (!program || !program.json_data) {
+            return data;
+        }
+
+        const programData = program.json_data;
+        const weeklyNotes = programData.weekly_notes || {};
+        const exerciseEntries = flattenExercises(program);
+
+        data.week_number = String(program.week || "");
+        data.bodyweight = String(weeklyNotes.bodyweight || "");
+        data.recovery.sleep_hours = String(weeklyNotes.sleep_avg_hours || "");
+        data.recovery.overall_recovery_notes = buildRecoveryNotes(weeklyNotes);
+        data.additional_notes = buildAdditionalNotes(programData);
+
+        data.main_lifts = data.main_lifts.map((liftEntry) => {
+            const matchedExercise = findExerciseByMatchers(exerciseEntries, liftMatchers[liftEntry.lift] || []);
+            if (!matchedExercise) {
+                return liftEntry;
+            }
+
+            return {
+                lift: liftEntry.lift,
+                top_set_weight: getTopSetValue(matchedExercise.exercise, ["prescribed_weight", "weight"]),
+                reps_completed: getTopSetValue(matchedExercise.exercise, ["target_reps", "reps", "actual_reps"]),
+                RPE: String(matchedExercise.exercise.top_set_RPE || getTopSetValue(matchedExercise.exercise, ["RPE"])),
+                notes: [matchedExercise.day, matchedExercise.focus, matchedExercise.exercise.name].filter(Boolean).join(" | "),
+            };
+        });
+
+        data.accessories = data.accessories.filter((accessoryEntry) => {
+            const exerciseName = normalizeText(accessoryEntry.exercise);
+            return exerciseEntries.some((entry) => {
+                const name = normalizeText(entry.exercise.name);
+                if (exerciseName === "ab wheel / hanging leg raise") {
+                    return name.indexOf("ab wheel") !== -1 || name.indexOf("hanging leg raise") !== -1;
+                }
+                return name.indexOf(exerciseName) !== -1;
+            });
+        });
+
+        return data;
+    }
+
+    function populateWeekSelector() {
+        const weekSelect = document.getElementById("checkInWeekSelect");
+        if (!weekSelect) {
+            return;
+        }
+
+        weekSelect.innerHTML = "";
+
+        if (!window.WorkoutApp.programs.length) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "No saved programs";
+            weekSelect.appendChild(option);
+            window.WorkoutApp.selectedCheckInWeek = null;
+            window.WorkoutApp.checkInData = cloneTemplate();
+            renderCheckInForm();
+            return;
+        }
+
+        window.WorkoutApp.programs.forEach((program) => {
+            const option = document.createElement("option");
+            option.value = program.week;
+            option.textContent = "Week " + program.week;
+            weekSelect.appendChild(option);
+        });
+
+        if (!window.WorkoutApp.selectedCheckInWeek || !getSelectedProgram()) {
+            window.WorkoutApp.selectedCheckInWeek = window.WorkoutApp.programs[0].week;
+        }
+
+        weekSelect.value = window.WorkoutApp.selectedCheckInWeek;
+        window.WorkoutApp.checkInData = buildCheckInFromProgram(getSelectedProgram());
+        renderCheckInForm();
     }
 
     function createField(labelText, value, onInput, isTextarea) {
@@ -172,17 +332,24 @@
     }
 
     function resetCheckIn() {
-        window.WorkoutApp.checkInData = cloneTemplate();
+        window.WorkoutApp.checkInData = buildCheckInFromProgram(getSelectedProgram());
         renderCheckInForm();
         setStatus("Check-in reset.");
     }
 
     function initCheckIn() {
         window.WorkoutApp.checkInData = cloneTemplate();
-        renderCheckInForm();
         document.getElementById("copyCheckInBtn").addEventListener("click", copyCheckIn);
         document.getElementById("resetCheckInBtn").addEventListener("click", resetCheckIn);
+        document.getElementById("checkInWeekSelect").addEventListener("change", (event) => {
+            window.WorkoutApp.selectedCheckInWeek = parseInt(event.target.value, 10);
+            window.WorkoutApp.checkInData = buildCheckInFromProgram(getSelectedProgram());
+            renderCheckInForm();
+            setStatus("Loaded week " + window.WorkoutApp.selectedCheckInWeek + " into check-in.");
+        });
+        populateWeekSelector();
     }
 
+    window.WorkoutApp.onProgramsLoaded = populateWeekSelector;
     window.WorkoutApp.initCheckIn = initCheckIn;
 })();
