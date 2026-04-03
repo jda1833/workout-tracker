@@ -76,9 +76,12 @@
             return data;
         }
 
+        const weeklyNotes = program.json_data.weekly_notes || {};
         const exerciseEntries = flattenExercises(program);
 
         data.week_number = String(program.week || "");
+        data.bodyweight = getFirstPresentValue(weeklyNotes, ["bodyweight"]);
+        data.sleep_avg_hours = getFirstPresentValue(weeklyNotes, ["sleep_avg_hours"]);
 
         data.main_lifts = data.main_lifts.map((liftEntry) => {
             const matchedExercise = findExerciseByMatchers(exerciseEntries, liftMatchers[liftEntry.lift] || []);
@@ -184,6 +187,12 @@
         }));
         fields.appendChild(createField("date", window.WorkoutApp.checkInData.date, (value) => {
             window.WorkoutApp.checkInData.date = value;
+        }));
+        fields.appendChild(createField("bodyweight", window.WorkoutApp.checkInData.bodyweight, (value) => {
+            window.WorkoutApp.checkInData.bodyweight = value;
+        }));
+        fields.appendChild(createField("sleep_avg_hours", window.WorkoutApp.checkInData.sleep_avg_hours, (value) => {
+            window.WorkoutApp.checkInData.sleep_avg_hours = value;
         }));
 
         card.appendChild(fields);

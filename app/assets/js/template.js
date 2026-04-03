@@ -229,6 +229,8 @@ window.WorkoutTemplate = {
 window.WeeklyCheckInTemplate = {
     "week_number": "",
     "date": "",
+    "bodyweight": "",
+    "sleep_avg_hours": "",
     "main_lifts": [
         {
             "lift": "Squat",
