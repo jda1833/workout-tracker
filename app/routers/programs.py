@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("/programs/")
 def list_programs(db: Session = Depends(get_db)):
-    return db.query(models.Program).all()
+    return db.query(models.Program).order_by(models.Program.week.asc()).all()
 
 
 @router.get("/programs/{week}")
