@@ -1,8 +1,8 @@
 (function () {
     const liftConfig = [
-        {key: "Squat", label: "Back Squat", color: "#1f7ae0", matchers: ["back squat", "squat (5/3/1)", "squat"]},
-        {key: "Bench Press", label: "Bench Press", color: "#0f9d7a", matchers: ["bench press", "bench (5/3/1)", "bench"]},
-        {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift (5/3/1)", "deadlift"]},
+        {key: "Squat", label: "Back Squat", color: "#1f7ae0", matchers: ["back squat", "squat (5/3/1)"]},
+        {key: "Bench Press", label: "Bench Press", color: "#0f9d7a", matchers: ["bench press", "bench (5/3/1)"]},
+        {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift (5/3/1)"]},
     ];
 
     const volumePalette = ["#1f7ae0", "#0f9d7a", "#d65c2e", "#8f4ad0", "#cc8b00", "#d1437b"];

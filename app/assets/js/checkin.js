@@ -1,9 +1,9 @@
 (function () {
     const liftMatchers = {
-        Squat: ["back squat", "squat (5/3/1)", "squat"],
-        "Bench Press": ["bench press", "bench (5/3/1)", "bench"],
-        Deadlift: ["deadlift (5/3/1)", "deadlift"],
-        "Overhead Press": ["overhead press", "press"],
+        Squat: ["back squat", "squat (5/3/1)"],
+        "Bench Press": ["bench press", "bench (5/3/1)"],
+        Deadlift: ["deadlift (5/3/1)"],
+        "Overhead Press": ["overhead press"],
     };
 
     function cloneTemplate() {
