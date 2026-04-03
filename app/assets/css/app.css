@@ -333,8 +333,9 @@ td input {
         top: 0;
         z-index: 10;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
+        flex-wrap: wrap;
         gap: 10px;
     }
 
@@ -354,14 +355,15 @@ td input {
     .nav-list {
         flex: 1 1 auto;
         justify-content: flex-end;
+        flex-wrap: wrap;
         gap: 4px;
-        min-width: 0;
+        min-width: 100%;
     }
 
     .nav-link {
         width: auto;
-        flex: 1 1 0;
-        min-width: 0;
+        flex: 1 1 calc(50% - 4px);
+        min-width: 120px;
         padding: 9px 8px;
         font-size: 12px;
         line-height: 1.15;
