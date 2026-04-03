@@ -237,6 +237,53 @@ td input {
     flex: 1 1 180px;
 }
 
+.checkin-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.checkin-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(11, 28, 49, 0.08);
+}
+
+.checkin-card h2,
+.checkin-card h3 {
+    margin-top: 0;
+}
+
+.checkin-fields {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.checkin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.checkin-field label {
+    color: #4e6279;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.checkin-field textarea {
+    min-height: 84px;
+}
+
+.checkin-stack {
+    display: grid;
+    gap: 12px;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(2px); }
     to { opacity: 1; transform: translateY(0); }
@@ -356,6 +403,10 @@ td input {
     select,
     textarea {
         width: 100%;
+    }
+
+    .checkin-fields {
+        grid-template-columns: 1fr;
     }
 
     .exercise-table,
