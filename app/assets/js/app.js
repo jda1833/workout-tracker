@@ -9,6 +9,9 @@
         if (typeof window.WorkoutApp.initCheckIn === "function") {
             window.WorkoutApp.initCheckIn();
         }
+        if (typeof window.WorkoutApp.initAnalytics === "function") {
+            window.WorkoutApp.initAnalytics();
+        }
         if (typeof window.WorkoutApp.initUpload === "function") {
             window.WorkoutApp.initUpload();
         }

@@ -17,7 +17,7 @@ A small FastAPI app for uploading, viewing, and editing weekly workout programs 
 - `app/services/validation.py`: JSON program schema validation
 - `app/data/index.html`: frontend shell HTML
 - `app/assets/css/app.css`: frontend styles
-- `app/assets/js/`: split frontend logic (`state.js`, `nav.js`, `tracker.js`, `checkin.js`, `upload.js`, `template.js`, `app.js`)
+- `app/assets/js/`: split frontend logic (`state.js`, `nav.js`, `tracker.js`, `checkin.js`, `analytics.js`, `upload.js`, `template.js`, `app.js`)
 - `app/data/programs.db`: SQLite database file (created automatically)
 
 ## Run Locally

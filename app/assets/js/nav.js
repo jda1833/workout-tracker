@@ -2,6 +2,7 @@
     const pageRoutes = {
         trackerPage: "/",
         checkInPage: "/check-in",
+        analyticsPage: "/analytics",
         uploadPage: "/",
         linksPage: "/",
     };
@@ -9,6 +10,9 @@
     function getPageFromPath(pathname) {
         if (pathname === "/check-in") {
             return "checkInPage";
+        }
+        if (pathname === "/analytics") {
+            return "analyticsPage";
         }
         return "trackerPage";
     }

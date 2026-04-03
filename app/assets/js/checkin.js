@@ -267,6 +267,6 @@
         populateWeekSelector();
     }
 
-    window.WorkoutApp.onProgramsLoaded = populateWeekSelector;
+    window.WorkoutApp.populateCheckInWeeks = populateWeekSelector;
     window.WorkoutApp.initCheckIn = initCheckIn;
 })();
