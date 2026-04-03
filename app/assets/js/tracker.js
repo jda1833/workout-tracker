@@ -77,6 +77,7 @@
             card.className = "program-card";
 
             const header = document.createElement("h3");
+            header.className = "exercise-title";
             header.textContent = exercise.name;
             card.appendChild(header);
 
