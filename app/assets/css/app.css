@@ -281,25 +281,44 @@ td input {
     }
 
     .sidebar {
-        padding: 16px 14px;
+        padding: 10px 12px;
         position: sticky;
         top: 0;
         z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
     }
 
     .brand {
-        margin-bottom: 14px;
-        font-size: 17px;
+        margin: 0;
+        font-size: 14px;
+        gap: 8px;
+        min-width: 0;
+        white-space: nowrap;
+    }
+
+    .brand-icon {
+        width: 20px;
+        height: 20px;
     }
 
     .nav-list {
-        gap: 6px;
+        flex: 1 1 auto;
+        justify-content: flex-end;
+        gap: 4px;
+        min-width: 0;
     }
 
     .nav-link {
-        flex: 1 1 100%;
-        padding: 12px;
-        font-size: 15px;
+        width: auto;
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 9px 8px;
+        font-size: 12px;
+        line-height: 1.15;
+        border-radius: 7px;
     }
 
     .content {
