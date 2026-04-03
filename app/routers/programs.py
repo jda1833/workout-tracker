@@ -45,3 +45,14 @@ def update_program(program_id: int, json_data: dict, db: Session = Depends(get_d
     db.commit()
     db.refresh(program)
     return {"status": "updated"}
+
+
+@router.delete("/programs/{program_id}")
+def delete_program(program_id: int, db: Session = Depends(get_db)):
+    program = db.query(models.Program).filter(models.Program.id == program_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+
+    db.delete(program)
+    db.commit()
+    return {"status": "deleted"}

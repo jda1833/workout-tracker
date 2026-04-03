@@ -1,4 +1,8 @@
 (function () {
+    function setTrackerStatus(text) {
+        document.getElementById("trackerStatus").textContent = text;
+    }
+
     async function loadPrograms() {
         const res = await fetch("/programs/");
         window.WorkoutApp.programs = await res.json();
@@ -17,7 +21,11 @@
             window.WorkoutApp.selectedWeek = window.WorkoutApp.programs[0].week;
             weekSelect.value = window.WorkoutApp.selectedWeek;
             populateDays();
+            setTrackerStatus("");
         } else {
+            window.WorkoutApp.selectedWeek = null;
+            window.WorkoutApp.selectedDayIndex = null;
+            document.getElementById("daySelect").innerHTML = "";
             document.getElementById("dayContainer").innerHTML = "<p class='note'>No programs found yet. Use Upload Program to add one.</p>";
         }
 
@@ -134,6 +142,41 @@
         });
     }
 
+    async function deleteSelectedWeek() {
+        const weekData = window.WorkoutApp.programs.find((p) => p.week === window.WorkoutApp.selectedWeek);
+        if (!weekData) {
+            setTrackerStatus("No week selected.");
+            return;
+        }
+
+        const confirmed = window.confirm("Delete Week " + weekData.week + "? This cannot be undone.");
+        if (!confirmed) {
+            return;
+        }
+
+        setTrackerStatus("Deleting week " + weekData.week + "...");
+
+        try {
+            const res = await fetch("/programs/" + weekData.id, {
+                method: "DELETE",
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({detail: "Delete failed"}));
+                setTrackerStatus("Delete failed: " + (err.detail || "Unknown error"));
+                return;
+            }
+
+            await loadPrograms();
+            if (window.WorkoutApp.selectedWeek === null) {
+                setTrackerStatus("Week " + weekData.week + " deleted. No programs remain.");
+            } else {
+                setTrackerStatus("Week " + weekData.week + " deleted.");
+            }
+        } catch {
+            setTrackerStatus("Delete failed: network error.");
+        }
+    }
+
     function initTracker() {
         document.getElementById("weekSelect").addEventListener("change", (e) => {
             window.WorkoutApp.selectedWeek = parseInt(e.target.value, 10);
@@ -144,6 +187,8 @@
             window.WorkoutApp.selectedDayIndex = parseInt(e.target.value, 10);
             showDay();
         });
+
+        document.getElementById("deleteWeekBtn").addEventListener("click", deleteSelectedWeek);
     }
 
     window.WorkoutApp.initTracker = initTracker;
