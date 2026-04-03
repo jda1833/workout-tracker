@@ -7,8 +7,5 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - workout_tracker_data:/app/app/data
+      - ./data/programs.db:/app/app/data/programs.db
     restart: unless-stopped
-
-volumes:
-  workout_tracker_data:

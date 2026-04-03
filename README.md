@@ -45,6 +45,13 @@ docker run --rm -p 8000:8000 workout-tracker
 
 Then open `http://127.0.0.1:8000`.
 
+To match that same behavior with local Compose:
+```bash
+docker compose -f docker-compose.local.yml up --build
+```
+
+Both Compose files now use persistent SQLite storage via a named Docker volume, so saved programs remain available across container restarts.
+
 ## API Endpoints
 - `GET /` returns the frontend page
 - `POST /upload-json/` uploads a JSON file containing a workout program
