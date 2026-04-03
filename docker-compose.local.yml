@@ -1,0 +1,14 @@
+services:
+  workout-tracker:
+    image: workout-tracker:local
+    build:
+      context: .
+      dockerfile: DockerFile
+    ports:
+      - "8000:8000"
+    volumes:
+      - workout_tracker_data:/app/app/data
+    restart: unless-stopped
+
+volumes:
+  workout_tracker_data:
