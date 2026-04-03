@@ -16,10 +16,9 @@
             <span>Workout Console</span>
         </p>
         <nav class="nav-list">
-            <button class="nav-link active" data-page="trackerPage">Program Tracker</button>
-            <button class="nav-link" data-page="checkInPage">Weekly Check-In</button>
-            <button class="nav-link" data-page="uploadPage">Upload Program</button>
-            <button class="nav-link" data-page="linksPage">Other Pages</button>
+            <a class="nav-link active" href="/" data-page="trackerPage">Program Tracker</a>
+            <a class="nav-link" href="/" data-page="uploadPage">Upload Program</a>
+            <a class="nav-link" href="/" data-page="linksPage">Other Pages</a>
         </nav>
     </aside>
 
@@ -40,29 +39,6 @@
             </div>
 
             <div id="dayContainer"></div>
-        </section>
-
-        <section id="checkInPage" class="page">
-            <h1>Weekly Check-In</h1>
-            <p class="note">Fill out the check-in fields below, then copy the generated JSON.</p>
-
-            <div class="control-row">
-                <div class="control-block">
-                    <h2>Select Week</h2>
-                    <select id="checkInWeekSelect"></select>
-                </div>
-            </div>
-
-            <div id="checkInForm" class="checkin-grid"></div>
-
-            <div class="program-card">
-                <div class="button-row">
-                    <button id="resetCheckInBtn" type="button">Reset Check-In</button>
-                    <button id="copyCheckInBtn" type="button">Copy Check-In JSON</button>
-                </div>
-                <textarea id="checkInTextarea" class="json-box" spellcheck="false"></textarea>
-                <div id="checkInStatus" class="status"></div>
-            </div>
         </section>
 
         <section id="uploadPage" class="page">
@@ -107,7 +83,6 @@
 <script src="/assets/js/nav.js"></script>
 <script src="/assets/js/template.js"></script>
 <script src="/assets/js/tracker.js"></script>
-<script src="/assets/js/checkin.js"></script>
 <script src="/assets/js/upload.js"></script>
 <script src="/assets/js/app.js"></script>
 </body>

@@ -9,18 +9,40 @@ INDEX_FILE = BASE_DIR / "data" / "index.html"
 FAVICON_FILE = BASE_DIR / "assets" / "icons" / "weight-plate.svg"
 
 
+def render_index(active_page: str):
+    if not INDEX_FILE.exists():
+        raise HTTPException(status_code=500, detail="Frontend file not found")
+
+    html = INDEX_FILE.read_text(encoding="utf-8")
+    page_ids = ("trackerPage", "uploadPage", "linksPage")
+
+    for page_id in page_ids:
+        html = html.replace(
+            f'<a class="nav-link active" href="/" data-page="{page_id}">',
+            f'<a class="nav-link" href="/" data-page="{page_id}">',
+        )
+        html = html.replace(
+            f'id="{page_id}" class="page active"',
+            f'id="{page_id}" class="page"',
+        )
+
+    html = html.replace(
+        f'<a class="nav-link" href="/" data-page="{active_page}">',
+        f'<a class="nav-link active" href="/" data-page="{active_page}">',
+        1,
+    )
+    html = html.replace(
+        f'id="{active_page}" class="page"',
+        f'id="{active_page}" class="page active"',
+        1,
+    )
+
+    return html
+
+
 @router.get("/", response_class=HTMLResponse)
 def read_root():
-    if not INDEX_FILE.exists():
-        raise HTTPException(status_code=500, detail="Frontend file not found")
-    return INDEX_FILE.read_text(encoding="utf-8")
-
-
-@router.get("/check-in", response_class=HTMLResponse)
-def read_check_in():
-    if not INDEX_FILE.exists():
-        raise HTTPException(status_code=500, detail="Frontend file not found")
-    return INDEX_FILE.read_text(encoding="utf-8")
+    return render_index("trackerPage")
 
 
 @router.get("/favicon.ico", include_in_schema=False)

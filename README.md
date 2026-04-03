@@ -48,7 +48,7 @@ Then open `http://127.0.0.1:8000`.
 ## API Endpoints
 - `GET /` returns the frontend page
 - `POST /upload-json/` uploads a JSON file containing a workout program
-- `POST /upload-json-body/` uploads a JSON object from request body (used by pasted JSON textbox)
+- `POST /upload-json-body/` uploads a JSON object from request body
 - `GET /programs/` lists all stored programs
 - `GET /programs/{week}` fetches a program JSON payload by week
 - `POST /update-program/{program_id}` updates a program's JSON payload

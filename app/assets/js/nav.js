@@ -1,15 +1,11 @@
 (function () {
     const pageRoutes = {
         trackerPage: "/",
-        checkInPage: "/check-in",
         uploadPage: "/",
         linksPage: "/",
     };
 
     function getPageFromPath(pathname) {
-        if (pathname === "/check-in") {
-            return "checkInPage";
-        }
         return "trackerPage";
     }
 
@@ -39,8 +35,11 @@
     }
 
     function initNav() {
-        document.querySelectorAll(".nav-link").forEach((btn) => {
-            btn.addEventListener("click", () => navigateToPage(btn.dataset.page, false));
+        document.querySelectorAll(".nav-link").forEach((link) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                navigateToPage(link.dataset.page, false);
+            });
         });
 
         window.addEventListener("popstate", () => {

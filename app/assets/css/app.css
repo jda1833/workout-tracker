@@ -59,6 +59,7 @@ body {
 }
 
 .nav-link {
+    display: block;
     width: 100%;
     background: transparent;
     border: 1px solid transparent;
@@ -69,6 +70,7 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: 0.2s;
+    text-decoration: none;
 }
 
 .nav-link:hover {
