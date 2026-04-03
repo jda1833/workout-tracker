@@ -14,7 +14,7 @@ def render_index(active_page: str):
         raise HTTPException(status_code=500, detail="Frontend file not found")
 
     html = INDEX_FILE.read_text(encoding="utf-8")
-    page_ids = ("trackerPage", "uploadPage", "linksPage")
+    page_ids = ("trackerPage", "checkInPage", "uploadPage", "linksPage")
 
     for page_id in page_ids:
         html = html.replace(
@@ -22,13 +22,18 @@ def render_index(active_page: str):
             f'<a class="nav-link" href="/" data-page="{page_id}">',
         )
         html = html.replace(
+            f'<a class="nav-link active" href="/check-in" data-page="{page_id}">',
+            f'<a class="nav-link" href="/check-in" data-page="{page_id}">',
+        )
+        html = html.replace(
             f'id="{page_id}" class="page active"',
             f'id="{page_id}" class="page"',
         )
 
+    nav_href = "/check-in" if active_page == "checkInPage" else "/"
     html = html.replace(
-        f'<a class="nav-link" href="/" data-page="{active_page}">',
-        f'<a class="nav-link active" href="/" data-page="{active_page}">',
+        f'<a class="nav-link" href="{nav_href}" data-page="{active_page}">',
+        f'<a class="nav-link active" href="{nav_href}" data-page="{active_page}">',
         1,
     )
     html = html.replace(
@@ -43,6 +48,11 @@ def render_index(active_page: str):
 @router.get("/", response_class=HTMLResponse)
 def read_root():
     return render_index("trackerPage")
+
+
+@router.get("/check-in", response_class=HTMLResponse)
+def read_check_in():
+    return render_index("checkInPage")
 
 
 @router.get("/favicon.ico", include_in_schema=False)

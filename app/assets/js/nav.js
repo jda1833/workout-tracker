@@ -1,11 +1,15 @@
 (function () {
     const pageRoutes = {
         trackerPage: "/",
+        checkInPage: "/check-in",
         uploadPage: "/",
         linksPage: "/",
     };
 
     function getPageFromPath(pathname) {
+        if (pathname === "/check-in") {
+            return "checkInPage";
+        }
         return "trackerPage";
     }
 

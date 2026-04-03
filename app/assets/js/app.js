@@ -6,6 +6,9 @@
         if (typeof window.WorkoutApp.initTracker === "function") {
             window.WorkoutApp.initTracker();
         }
+        if (typeof window.WorkoutApp.initCheckIn === "function") {
+            window.WorkoutApp.initCheckIn();
+        }
         if (typeof window.WorkoutApp.initUpload === "function") {
             window.WorkoutApp.initUpload();
         }

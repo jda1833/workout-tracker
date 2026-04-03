@@ -21,6 +21,9 @@
             document.getElementById("dayContainer").innerHTML = "<p class='note'>No programs found yet. Use Upload Program to add one.</p>";
         }
 
+        if (typeof window.WorkoutApp.onProgramsLoaded === "function") {
+            window.WorkoutApp.onProgramsLoaded();
+        }
     }
 
     function populateDays() {
