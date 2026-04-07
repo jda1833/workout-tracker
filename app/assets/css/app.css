@@ -59,6 +59,14 @@ body {
     gap: 8px;
 }
 
+.app-version {
+    margin: 16px 0 0;
+    color: rgba(220, 232, 247, 0.78);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
 .nav-link {
     display: block;
     width: 100%;
@@ -503,6 +511,12 @@ td input {
         flex-wrap: wrap;
         gap: 4px;
         min-width: 100%;
+    }
+
+    .app-version {
+        margin-top: 4px;
+        width: 100%;
+        text-align: right;
     }
 
     .nav-link {

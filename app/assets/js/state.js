@@ -1,4 +1,5 @@
 window.WorkoutApp = {
+    version: "1",
     programs: [],
     selectedWeek: null,
     selectedDayIndex: null,

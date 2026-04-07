@@ -1,4 +1,13 @@
 (function () {
+    function renderVersion() {
+        const versionNode = document.getElementById("appVersion");
+        if (!versionNode) {
+            return;
+        }
+
+        versionNode.textContent = "Version " + (window.WorkoutApp.version || "1");
+    }
+
     function syncMobileStickyOffset() {
         const root = document.documentElement;
         const sidebar = document.querySelector(".sidebar");
@@ -35,6 +44,7 @@
             window.WorkoutApp.loadPrograms();
         }
 
+        renderVersion();
         syncMobileStickyOffset();
         window.addEventListener("resize", syncMobileStickyOffset);
     }
