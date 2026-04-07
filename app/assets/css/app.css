@@ -529,6 +529,20 @@ td input {
         border-radius: 7px;
     }
 
+    .nav-link[data-page="checkInPage"],
+    .nav-link[data-page="analyticsPage"],
+    .nav-link[data-page="uploadPage"],
+    .nav-link[data-page="linksPage"] {
+        display: none;
+    }
+
+    #checkInPage,
+    #analyticsPage,
+    #uploadPage,
+    #linksPage {
+        display: none !important;
+    }
+
     .content {
         padding: 14px;
     }
