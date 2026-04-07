@@ -94,7 +94,7 @@
             return {
                 lift: liftEntry.lift,
                 top_set_weight: getFirstPresentValue(topSet, ["actual_weight", "prescribed_weight", "weight"]),
-                reps_completed: getFirstPresentValue(topSet, ["reps", "actual_reps", "target_reps"]),
+                reps_completed: getFirstPresentValue(topSet, ["reps", "actual_reps"]),
                 RPE: getFirstPresentValue({
                     top_set_RPE: matchedExercise.exercise.top_set_RPE,
                     RPE: topSet ? topSet.RPE : "",
