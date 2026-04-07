@@ -1,4 +1,20 @@
 (function () {
+    function syncMobileStickyOffset() {
+        const root = document.documentElement;
+        const sidebar = document.querySelector(".sidebar");
+
+        if (!root || !sidebar) {
+            return;
+        }
+
+        if (window.innerWidth > 640) {
+            root.style.setProperty("--mobile-sticky-offset", "0px");
+            return;
+        }
+
+        root.style.setProperty("--mobile-sticky-offset", sidebar.offsetHeight + "px");
+    }
+
     function init() {
         if (typeof window.WorkoutApp.initNav === "function") {
             window.WorkoutApp.initNav();
@@ -18,6 +34,9 @@
         if (typeof window.WorkoutApp.loadPrograms === "function") {
             window.WorkoutApp.loadPrograms();
         }
+
+        syncMobileStickyOffset();
+        window.addEventListener("resize", syncMobileStickyOffset);
     }
 
     window.addEventListener("DOMContentLoaded", init);
