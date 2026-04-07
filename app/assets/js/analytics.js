@@ -2,7 +2,7 @@
     const liftConfig = [
         {key: "Squat", label: "Back Squat", color: "#1f7ae0", matchers: ["back squat", "squat (5/3/1)"]},
         {key: "Bench Press", label: "Bench Press", color: "#0f9d7a", matchers: ["bench press", "bench (5/3/1)"]},
-        {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift", "deadlift (5/3/1)"]},
+        {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift (5/3/1)", "deadlift"]},
     ];
 
     const volumePalette = ["#1f7ae0", "#0f9d7a", "#d65c2e", "#8f4ad0", "#cc8b00", "#d1437b"];
@@ -58,6 +58,15 @@
 
         if (exactMatch) {
             return exactMatch;
+        }
+
+        const startsWithMatch = exercises.find((entry) => {
+            const name = normalizeText(entry.name);
+            return matchers.some((matcher) => name.startsWith(matcher));
+        });
+
+        if (startsWithMatch) {
+            return startsWithMatch;
         }
 
         return exercises.find((entry) => {

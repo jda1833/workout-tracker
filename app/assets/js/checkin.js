@@ -2,7 +2,7 @@
     const liftMatchers = {
         Squat: ["back squat", "squat (5/3/1)"],
         "Bench Press": ["bench press", "bench (5/3/1)"],
-        Deadlift: ["deadlift", "deadlift (5/3/1)"],
+        Deadlift: ["deadlift (5/3/1)", "deadlift"],
         "Overhead Press": ["overhead press"],
     };
 
@@ -49,6 +49,15 @@
 
         if (exactMatch) {
             return exactMatch;
+        }
+
+        const startsWithMatch = exerciseEntries.find((entry) => {
+            const name = normalizeText(entry.exercise.name);
+            return matchers.some((matcher) => name.startsWith(matcher));
+        });
+
+        if (startsWithMatch) {
+            return startsWithMatch;
         }
 
         return exerciseEntries.find((entry) => {
