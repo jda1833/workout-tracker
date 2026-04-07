@@ -96,6 +96,10 @@
             const headRow = document.createElement("tr");
             const setKeys = Object.keys(exercise.sets[0]);
 
+            const setNumberHeader = document.createElement("th");
+            setNumberHeader.textContent = "Set";
+            headRow.appendChild(setNumberHeader);
+
             setKeys.forEach((key) => {
                 const th = document.createElement("th");
                 th.textContent = key;
@@ -108,6 +112,11 @@
             const tbody = document.createElement("tbody");
             exercise.sets.forEach((setItem, setIndex) => {
                 const row = document.createElement("tr");
+                const setNumberCell = document.createElement("td");
+                setNumberCell.dataset.label = "Set";
+                setNumberCell.textContent = String(setIndex + 1);
+                row.appendChild(setNumberCell);
+
                 setKeys.forEach((key) => {
                     const cell = document.createElement("td");
                     cell.dataset.label = key;
