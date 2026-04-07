@@ -2,7 +2,7 @@
     const liftConfig = [
         {key: "Squat", label: "Back Squat", color: "#1f7ae0", matchers: ["back squat", "squat (5/3/1)"]},
         {key: "Bench Press", label: "Bench Press", color: "#0f9d7a", matchers: ["bench press", "bench (5/3/1)"]},
-        {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift (5/3/1)"]},
+        {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift", "deadlift (5/3/1)"]},
     ];
 
     const volumePalette = ["#1f7ae0", "#0f9d7a", "#d65c2e", "#8f4ad0", "#cc8b00", "#d1437b"];
@@ -50,15 +50,28 @@
         return null;
     }
 
+    function findExerciseByMatchers(exercises, matchers) {
+        const exactMatch = exercises.find((entry) => {
+            const name = normalizeText(entry.name);
+            return matchers.some((matcher) => name === matcher);
+        });
+
+        if (exactMatch) {
+            return exactMatch;
+        }
+
+        return exercises.find((entry) => {
+            const name = normalizeText(entry.name);
+            return matchers.some((matcher) => name.indexOf(matcher) !== -1);
+        }) || null;
+    }
+
     function getMainLiftProgress(program) {
         const days = program && program.json_data && Array.isArray(program.json_data.days) ? program.json_data.days : [];
         const exercises = days.flatMap((day) => Array.isArray(day.exercises) ? day.exercises : []);
 
         return liftConfig.map((lift) => {
-            const exercise = exercises.find((entry) => {
-                const name = normalizeText(entry.name);
-                return lift.matchers.some((matcher) => name.indexOf(matcher) !== -1);
-            });
+            const exercise = findExerciseByMatchers(exercises, lift.matchers);
             const topSet = getTopSet(exercise);
             return {
                 key: lift.key,

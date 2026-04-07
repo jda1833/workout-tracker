@@ -2,7 +2,7 @@
     const liftMatchers = {
         Squat: ["back squat", "squat (5/3/1)"],
         "Bench Press": ["bench press", "bench (5/3/1)"],
-        Deadlift: ["deadlift (5/3/1)"],
+        Deadlift: ["deadlift", "deadlift (5/3/1)"],
         "Overhead Press": ["overhead press"],
     };
 
@@ -42,6 +42,15 @@
     }
 
     function findExerciseByMatchers(exerciseEntries, matchers) {
+        const exactMatch = exerciseEntries.find((entry) => {
+            const name = normalizeText(entry.exercise.name);
+            return matchers.some((matcher) => name === matcher);
+        });
+
+        if (exactMatch) {
+            return exactMatch;
+        }
+
         return exerciseEntries.find((entry) => {
             const name = normalizeText(entry.exercise.name);
             return matchers.some((matcher) => name.indexOf(matcher) !== -1);
