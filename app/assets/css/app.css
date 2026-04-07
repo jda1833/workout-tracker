@@ -34,6 +34,8 @@ body {
     color: var(--sidebar-ink);
     padding: 22px 16px;
     border-right: 1px solid #0a1726;
+    display: flex;
+    flex-direction: column;
 }
 
 .brand {
@@ -60,7 +62,7 @@ body {
 }
 
 .app-version {
-    margin: 16px 0 0;
+    margin: auto 0 0;
     color: rgba(220, 232, 247, 0.78);
     font-size: 12px;
     letter-spacing: 0.04em;
