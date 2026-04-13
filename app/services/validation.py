@@ -8,19 +8,22 @@ def validate_program_payload(data: dict):
     if not isinstance(data.get("week"), int):
         errors.append("'week' must be an integer.")
 
-    if not isinstance(data.get("week_type"), str):
-        errors.append("'week_type' must be a string.")
+    week_type = data.get("week_type")
+    if week_type is not None and not isinstance(week_type, str):
+        errors.append("'week_type' must be a string when provided.")
 
-    if not isinstance(data.get("amrap_rule"), str):
-        errors.append("'amrap_rule' must be a string.")
+    amrap_rule = data.get("amrap_rule")
+    if amrap_rule is not None and not isinstance(amrap_rule, str):
+        errors.append("'amrap_rule' must be a string when provided.")
 
     training_maxes = data.get("training_maxes")
-    if not isinstance(training_maxes, dict):
-        errors.append("'training_maxes' must be an object.")
-    else:
-        for key in ("squat", "bench", "deadlift", "overhead_press"):
-            if not isinstance(training_maxes.get(key), (int, float)):
-                errors.append(f"'training_maxes.{key}' must be a number.")
+    if training_maxes is not None:
+        if not isinstance(training_maxes, dict):
+            errors.append("'training_maxes' must be an object when provided.")
+        else:
+            for key in ("squat", "bench", "deadlift", "overhead_press"):
+                if not isinstance(training_maxes.get(key), (int, float)):
+                    errors.append(f"'training_maxes.{key}' must be a number.")
 
     days = data.get("days")
     if not isinstance(days, list) or len(days) == 0:

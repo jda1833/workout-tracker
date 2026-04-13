@@ -10,22 +10,24 @@
         if (!Number.isInteger(parsed.week)) {
             return "JSON must include an integer 'week'.";
         }
-        if (typeof parsed.week_type !== "string" || !parsed.week_type.trim()) {
-            return "JSON must include 'week_type' as text.";
+        if (parsed.week_type !== undefined && typeof parsed.week_type !== "string") {
+            return "JSON must include 'week_type' as text when provided.";
         }
-        if (typeof parsed.amrap_rule !== "string") {
-            return "JSON must include 'amrap_rule' as text.";
+        if (parsed.amrap_rule !== undefined && typeof parsed.amrap_rule !== "string") {
+            return "JSON must include 'amrap_rule' as text when provided.";
         }
 
         const tm = parsed.training_maxes;
-        if (!tm || typeof tm !== "object" || Array.isArray(tm)) {
-            return "JSON must include a 'training_maxes' object.";
-        }
+        if (tm !== undefined) {
+            if (!tm || typeof tm !== "object" || Array.isArray(tm)) {
+                return "JSON must include a 'training_maxes' object when provided.";
+            }
 
-        const tmKeys = ["squat", "bench", "deadlift", "overhead_press"];
-        for (const key of tmKeys) {
-            if (typeof tm[key] !== "number" || Number.isNaN(tm[key])) {
-                return "training_maxes." + key + " must be a number.";
+            const tmKeys = ["squat", "bench", "deadlift", "overhead_press"];
+            for (const key of tmKeys) {
+                if (typeof tm[key] !== "number" || Number.isNaN(tm[key])) {
+                    return "training_maxes." + key + " must be a number.";
+                }
             }
         }
 
