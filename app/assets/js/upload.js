@@ -1,81 +1,110 @@
 (function () {
+    const ROOT_KEYS = new Set(["week", "days"]);
+    const DAY_KEYS = new Set(["day", "focus", "exercises"]);
+    const EXERCISE_KEYS = new Set(["name", "sets"]);
+    const SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"]);
+
     function setStatus(text) {
         document.getElementById("uploadStatus").textContent = text;
+    }
+
+    function findUnexpectedKey(obj, allowedKeys) {
+        return Object.keys(obj).find((key) => !allowedKeys.has(key)) || null;
+    }
+
+    function isNumberOrString(value) {
+        return typeof value === "string" || (typeof value === "number" && !Number.isNaN(value));
     }
 
     function validateProgramShape(parsed) {
         if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
             return "JSON must be an object.";
         }
+
+        const unexpectedRootKey = findUnexpectedKey(parsed, ROOT_KEYS);
+        if (unexpectedRootKey) {
+            return "root." + unexpectedRootKey + " is not allowed.";
+        }
+
         if (!Number.isInteger(parsed.week)) {
             return "JSON must include an integer 'week'.";
-        }
-        if (parsed.week_type !== undefined && typeof parsed.week_type !== "string") {
-            return "JSON must include 'week_type' as text when provided.";
-        }
-        if (parsed.amrap_rule !== undefined && typeof parsed.amrap_rule !== "string") {
-            return "JSON must include 'amrap_rule' as text when provided.";
-        }
-
-        const tm = parsed.training_maxes;
-        if (tm !== undefined) {
-            if (!tm || typeof tm !== "object" || Array.isArray(tm)) {
-                return "JSON must include a 'training_maxes' object when provided.";
-            }
-
-            const tmKeys = ["squat", "bench", "deadlift", "overhead_press"];
-            for (const key of tmKeys) {
-                if (typeof tm[key] !== "number" || Number.isNaN(tm[key])) {
-                    return "training_maxes." + key + " must be a number.";
-                }
-            }
         }
 
         if (!Array.isArray(parsed.days) || parsed.days.length === 0) {
             return "'days' must be a non-empty array.";
         }
 
-        for (const day of parsed.days) {
+        for (let dayIndex = 0; dayIndex < parsed.days.length; dayIndex += 1) {
+            const day = parsed.days[dayIndex];
             if (!day || typeof day !== "object" || Array.isArray(day)) {
                 return "Each day must be an object.";
             }
+
+            const unexpectedDayKey = findUnexpectedKey(day, DAY_KEYS);
+            if (unexpectedDayKey) {
+                return "days[" + dayIndex + "]." + unexpectedDayKey + " is not allowed.";
+            }
+
             if (typeof day.day !== "string" || typeof day.focus !== "string") {
                 return "Each day must include 'day' and 'focus' strings.";
             }
             if (!Array.isArray(day.exercises) || day.exercises.length === 0) {
                 return "Each day must include a non-empty 'exercises' array.";
             }
-            for (const ex of day.exercises) {
+
+            for (let exerciseIndex = 0; exerciseIndex < day.exercises.length; exerciseIndex += 1) {
+                const ex = day.exercises[exerciseIndex];
                 if (!ex || typeof ex !== "object" || Array.isArray(ex)) {
                     return "Each exercise must be an object.";
                 }
+
+                const unexpectedExerciseKey = findUnexpectedKey(ex, EXERCISE_KEYS);
+                if (unexpectedExerciseKey) {
+                    return "days[" + dayIndex + "].exercises[" + exerciseIndex + "]." + unexpectedExerciseKey + " is not allowed.";
+                }
+
                 if (typeof ex.name !== "string") {
                     return "Each exercise must include a text 'name'.";
                 }
                 if (!Array.isArray(ex.sets) || ex.sets.length === 0) {
                     return "Each exercise must include a non-empty 'sets' array.";
                 }
-            }
-        }
 
-        const notes = parsed.weekly_notes;
-        if (notes !== undefined) {
-            if (!notes || typeof notes !== "object" || Array.isArray(notes)) {
-                return "'weekly_notes' must be an object when provided.";
-            }
+                for (let setIndex = 0; setIndex < ex.sets.length; setIndex += 1) {
+                    const setItem = ex.sets[setIndex];
+                    if (!setItem || typeof setItem !== "object" || Array.isArray(setItem)) {
+                        return "Each set must be an object.";
+                    }
 
-            const noteKeys = [
-                "bodyweight",
-                "sleep_avg_hours",
-                "hardest_lift",
-                "pain_tightness_notes",
-                "recovery_notes",
-                "general_notes",
-            ];
+                    const unexpectedSetKey = findUnexpectedKey(setItem, SET_KEYS);
+                    if (unexpectedSetKey) {
+                        return "days[" + dayIndex + "].exercises[" + exerciseIndex + "].sets[" + setIndex + "]." + unexpectedSetKey + " is not allowed.";
+                    }
 
-            for (const key of noteKeys) {
-                if (!(key in notes)) {
-                    return "weekly_notes." + key + " is required when 'weekly_notes' is provided.";
+                    for (const requiredKey of SET_KEYS) {
+                        if (!(requiredKey in setItem)) {
+                            return "days[" + dayIndex + "].exercises[" + exerciseIndex + "].sets[" + setIndex + "]." + requiredKey + " is required.";
+                        }
+                    }
+
+                    if (!isNumberOrString(setItem.percent)) {
+                        return "Set 'percent' must be a number or string.";
+                    }
+                    if (!isNumberOrString(setItem.target_reps)) {
+                        return "Set 'target_reps' must be a number or string.";
+                    }
+                    if (!isNumberOrString(setItem.prescribed_weight)) {
+                        return "Set 'prescribed_weight' must be a number or string.";
+                    }
+                    if (!isNumberOrString(setItem.actual_weight)) {
+                        return "Set 'actual_weight' must be a number or string.";
+                    }
+                    if (!isNumberOrString(setItem.reps)) {
+                        return "Set 'reps' must be a number or string.";
+                    }
+                    if (!isNumberOrString(setItem.RPE)) {
+                        return "Set 'RPE' must be a number or string.";
+                    }
                 }
             }
         }
