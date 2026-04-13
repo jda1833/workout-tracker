@@ -28,6 +28,7 @@ window.WeeklyCheckInTemplate = {
     "date": "",
     "bodyweight": "",
     "sleep_avg_hours": "",
+    "notes": "",
     "main_lifts": [
         {
             "lift": "Squat",

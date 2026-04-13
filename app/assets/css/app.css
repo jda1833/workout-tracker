@@ -296,6 +296,12 @@ td input {
     min-height: 84px;
 }
 
+.checkin-field input.is-missing,
+.checkin-field textarea.is-missing {
+    background: #ffe5e5;
+    border-color: #e3aaaa;
+}
+
 .checkin-stack {
     display: grid;
     gap: 12px;

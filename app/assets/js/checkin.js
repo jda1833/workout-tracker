@@ -18,6 +18,10 @@
         document.getElementById("checkInTextarea").value = JSON.stringify(window.WorkoutApp.checkInData, null, 2);
     }
 
+    function syncMissingState(input) {
+        input.classList.toggle("is-missing", !String(input.value || "").trim());
+    }
+
     function getSelectedProgram() {
         return window.WorkoutApp.programs.find((program) => program.week === window.WorkoutApp.selectedCheckInWeek) || null;
     }
@@ -100,6 +104,11 @@
         data.week_number = String(program.week || "");
         data.bodyweight = getFirstPresentValue(weeklyNotes, ["bodyweight"]);
         data.sleep_avg_hours = getFirstPresentValue(weeklyNotes, ["sleep_avg_hours"]);
+        data.notes = getFirstPresentValue(weeklyNotes, [
+            "general_notes",
+            "recovery_notes",
+            "pain_tightness_notes",
+        ]);
 
         data.main_lifts = data.main_lifts.map((liftEntry) => {
             const matchedExercise = findExerciseByMatchers(exerciseEntries, liftMatchers[liftEntry.lift] || []);
@@ -174,8 +183,10 @@
             input.type = "text";
         }
         input.value = value || "";
+        syncMissingState(input);
         input.addEventListener("input", (event) => {
             onInput(event.target.value);
+            syncMissingState(event.target);
             updateTextarea();
             setStatus("Check-in updated.");
         });
@@ -214,6 +225,14 @@
         }));
 
         card.appendChild(fields);
+        container.appendChild(card);
+    }
+
+    function renderNotes(container) {
+        const card = createCard("Notes");
+        card.appendChild(createField("notes", window.WorkoutApp.checkInData.notes, (value) => {
+            window.WorkoutApp.checkInData.notes = value;
+        }, true));
         container.appendChild(card);
     }
 
@@ -257,6 +276,7 @@
         const container = document.getElementById("checkInForm");
         container.innerHTML = "";
         renderGeneralInfo(container);
+        renderNotes(container);
         renderMainLifts(container);
         updateTextarea();
     }
