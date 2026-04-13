@@ -3,7 +3,7 @@ services:
     pull_policy: build
     build:
       context: .
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:

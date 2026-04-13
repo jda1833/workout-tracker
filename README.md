@@ -35,7 +35,7 @@ A small FastAPI app for uploading, viewing, and editing weekly workout programs 
 ## Run with Docker
 Build:
 ```bash
-docker build -t workout-tracker -f DockerFile .
+docker build -t workout-tracker -f Dockerfile .
 ```
 
 Run:
@@ -49,6 +49,8 @@ To match that same behavior with local Compose:
 ```bash
 docker compose -f docker-compose.local.yml up --build
 ```
+
+The local Compose file uses the standard `Dockerfile` name so it can be imported more easily into tools like Dockge/Dockage-style stack managers.
 
 Both Compose files now use persistent SQLite storage via a named Docker volume, so saved programs remain available across container restarts.
 
