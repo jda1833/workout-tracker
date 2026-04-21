@@ -8,8 +8,12 @@
         return String(repsValue || "").trim() !== "";
     }
 
+    function isManuallyCompleted(setItem) {
+        return setItem.complete === true;
+    }
+
     function updateCompletedRowState(row, setItem) {
-        row.classList.toggle("is-complete", hasCompletedReps(setItem));
+        row.classList.toggle("is-complete", hasCompletedReps(setItem) || isManuallyCompleted(setItem));
     }
 
     async function loadPrograms() {
@@ -109,6 +113,10 @@
             setNumberHeader.textContent = "Set";
             headRow.appendChild(setNumberHeader);
 
+            const completeHeader = document.createElement("th");
+            completeHeader.textContent = "Done";
+            headRow.appendChild(completeHeader);
+
             setKeys.forEach((key) => {
                 const th = document.createElement("th");
                 th.textContent = key;
@@ -125,6 +133,21 @@
                 setNumberCell.dataset.label = "Set";
                 setNumberCell.textContent = String(setIndex + 1);
                 row.appendChild(setNumberCell);
+
+                const completeCell = document.createElement("td");
+                completeCell.dataset.label = "Done";
+                const completeInput = document.createElement("input");
+                completeInput.type = "checkbox";
+                completeInput.checked = isManuallyCompleted(setItem);
+                completeInput.className = "set-complete-checkbox";
+                completeInput.setAttribute("aria-label", exercise.name + " complete set " + (setIndex + 1));
+                completeInput.onchange = async (e) => {
+                    exercise.sets[setIndex].complete = e.target.checked;
+                    updateCompletedRowState(row, exercise.sets[setIndex]);
+                    await updateProgramOnServer();
+                };
+                completeCell.appendChild(completeInput);
+                row.appendChild(completeCell);
 
                 setKeys.forEach((key) => {
                     const cell = document.createElement("td");

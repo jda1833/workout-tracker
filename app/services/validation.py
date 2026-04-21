@@ -1,7 +1,9 @@
 ROOT_KEYS = {"week", "days"}
 DAY_KEYS = {"day", "focus", "exercises"}
 EXERCISE_KEYS = {"name", "sets"}
-SET_KEYS = {"percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"}
+REQUIRED_SET_KEYS = {"percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"}
+OPTIONAL_SET_KEYS = {"complete"}
+SET_KEYS = REQUIRED_SET_KEYS | OPTIONAL_SET_KEYS
 
 
 def _append_unknown_key_errors(errors: list[str], data: dict, allowed_keys: set[str], path: str):
@@ -84,7 +86,7 @@ def validate_program_payload(data: dict):
                     f"days[{i}].exercises[{j}].sets[{k}]",
                 )
 
-                for key in SET_KEYS:
+                for key in REQUIRED_SET_KEYS:
                     if key not in set_item:
                         errors.append(
                             f"'days[{i}].exercises[{j}].sets[{k}].{key}' is required."
@@ -108,5 +110,7 @@ def validate_program_payload(data: dict):
                     errors.append(f"'days[{i}].exercises[{j}].sets[{k}].reps' must be a number or string.")
                 if "RPE" in set_item and not _is_number_or_string(set_item["RPE"]):
                     errors.append(f"'days[{i}].exercises[{j}].sets[{k}].RPE' must be a number or string.")
+                if "complete" in set_item and not isinstance(set_item["complete"], bool):
+                    errors.append(f"'days[{i}].exercises[{j}].sets[{k}].complete' must be a boolean.")
 
     return errors

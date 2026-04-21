@@ -196,6 +196,12 @@ th {
     border-color: #9bc7a2;
 }
 
+.set-complete-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #3ea85d;
+}
+
 td input {
     width: 100%;
     min-width: 0;
@@ -665,6 +671,13 @@ td input {
         text-align: left;
         min-height: 40px;
         padding: 9px 10px;
+    }
+
+    .exercise-table td .set-complete-checkbox {
+        width: 22px;
+        height: 22px;
+        min-height: 22px;
+        margin: 6px 0 2px;
     }
 
     .exercise-table tr.is-complete {
