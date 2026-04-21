@@ -3,6 +3,15 @@
         document.getElementById("trackerStatus").textContent = text;
     }
 
+    function hasCompletedReps(setItem) {
+        const repsValue = setItem.reps !== undefined ? setItem.reps : setItem.actual_reps;
+        return String(repsValue || "").trim() !== "";
+    }
+
+    function updateCompletedRowState(row, setItem) {
+        row.classList.toggle("is-complete", hasCompletedReps(setItem));
+    }
+
     async function loadPrograms() {
         const res = await fetch("/programs/");
         window.WorkoutApp.programs = await res.json();
@@ -125,11 +134,13 @@
                     input.setAttribute("aria-label", exercise.name + " " + key + " set " + (setIndex + 1));
                     input.onchange = async (e) => {
                         exercise.sets[setIndex][key] = e.target.value;
+                        updateCompletedRowState(row, exercise.sets[setIndex]);
                         await updateProgramOnServer();
                     };
                     cell.appendChild(input);
                     row.appendChild(cell);
                 });
+                updateCompletedRowState(row, setItem);
                 tbody.appendChild(row);
             });
 

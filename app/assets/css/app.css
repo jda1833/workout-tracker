@@ -187,6 +187,15 @@ th {
     color: #1f3c5a;
 }
 
+.exercise-table tr.is-complete td {
+    background: #e7f8ea;
+}
+
+.exercise-table tr.is-complete td input {
+    background: #f3fff4;
+    border-color: #9bc7a2;
+}
+
 td input {
     width: 100%;
     min-width: 0;
@@ -656,6 +665,11 @@ td input {
         text-align: left;
         min-height: 40px;
         padding: 9px 10px;
+    }
+
+    .exercise-table tr.is-complete {
+        background: #e7f8ea;
+        border-color: #b9dcc0;
     }
 
     .program-card {
