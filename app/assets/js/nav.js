@@ -36,9 +36,12 @@
         setActivePage(pageId);
 
         const nextPath = pageRoutes[pageId] || "/";
-        if (window.location.pathname !== nextPath) {
+        const nextSearch = pageId === "trackerPage" ? window.location.search : "";
+        const nextUrl = nextPath + nextSearch;
+        const currentUrl = window.location.pathname + window.location.search;
+        if (currentUrl !== nextUrl) {
             const historyMethod = replaceState ? "replaceState" : "pushState";
-            window.history[historyMethod]({}, "", nextPath);
+            window.history[historyMethod]({}, "", nextUrl);
         }
     }
 
@@ -52,6 +55,9 @@
 
         window.addEventListener("popstate", () => {
             setActivePage(getPageFromPath(window.location.pathname));
+            if (typeof window.WorkoutApp.applyTrackerStateFromUrl === "function") {
+                window.WorkoutApp.applyTrackerStateFromUrl();
+            }
         });
 
         navigateToPage(getPageFromPath(window.location.pathname), true);

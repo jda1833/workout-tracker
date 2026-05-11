@@ -3,6 +3,50 @@
         document.getElementById("trackerStatus").textContent = text;
     }
 
+    function parseIntegerParam(value) {
+        if (value === null || value === "") {
+            return null;
+        }
+
+        const parsed = parseInt(value, 10);
+        return Number.isNaN(parsed) ? null : parsed;
+    }
+
+    function getTrackerParamsFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            week: parseIntegerParam(params.get("week")),
+            day: parseIntegerParam(params.get("day")),
+        };
+    }
+
+    function syncTrackerUrl(replaceState) {
+        if (window.location.pathname !== "/") {
+            return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (window.WorkoutApp.selectedWeek === null) {
+            params.delete("week");
+            params.delete("day");
+        } else {
+            params.set("week", String(window.WorkoutApp.selectedWeek));
+            if (window.WorkoutApp.selectedDayIndex === null) {
+                params.delete("day");
+            } else {
+                params.set("day", String(window.WorkoutApp.selectedDayIndex));
+            }
+        }
+
+        const nextSearch = params.toString();
+        const nextUrl = nextSearch ? "/?" + nextSearch : "/";
+        const currentUrl = window.location.pathname + window.location.search;
+        if (currentUrl !== nextUrl) {
+            const historyMethod = replaceState ? "replaceState" : "pushState";
+            window.history[historyMethod]({}, "", nextUrl);
+        }
+    }
+
     function hasCompletedReps(setItem) {
         const repsValue = setItem.reps !== undefined ? setItem.reps : setItem.actual_reps;
         return String(repsValue || "").trim() !== "";
@@ -31,7 +75,9 @@
         });
 
         if (window.WorkoutApp.programs.length) {
-            window.WorkoutApp.selectedWeek = window.WorkoutApp.programs[0].week;
+            const requestedWeek = getTrackerParamsFromUrl().week;
+            const matchingWeek = window.WorkoutApp.programs.find((program) => program.week === requestedWeek);
+            window.WorkoutApp.selectedWeek = matchingWeek ? matchingWeek.week : window.WorkoutApp.programs[0].week;
             weekSelect.value = window.WorkoutApp.selectedWeek;
             populateDays();
             setTrackerStatus("");
@@ -40,6 +86,7 @@
             window.WorkoutApp.selectedDayIndex = null;
             document.getElementById("daySelect").innerHTML = "";
             document.getElementById("dayContainer").innerHTML = "<p class='note'>No programs found yet. Use Upload Program to add one.</p>";
+            syncTrackerUrl(true);
         }
 
         if (typeof window.WorkoutApp.onProgramsLoaded === "function") {
@@ -64,8 +111,11 @@
             daySelect.appendChild(option);
         });
 
-        window.WorkoutApp.selectedDayIndex = 0;
-        daySelect.value = 0;
+        const requestedDay = getTrackerParamsFromUrl().day;
+        const hasRequestedDay = requestedDay !== null && requestedDay >= 0 && requestedDay < weekData.json_data.days.length;
+        const hasCurrentDay = window.WorkoutApp.selectedDayIndex !== null && window.WorkoutApp.selectedDayIndex >= 0 && window.WorkoutApp.selectedDayIndex < weekData.json_data.days.length;
+        window.WorkoutApp.selectedDayIndex = hasRequestedDay ? requestedDay : (hasCurrentDay ? window.WorkoutApp.selectedDayIndex : 0);
+        daySelect.value = window.WorkoutApp.selectedDayIndex;
         showDay();
     }
 
@@ -84,6 +134,8 @@
             container.innerHTML = "<p class='note'>No exercises available for this day.</p>";
             return;
         }
+
+        syncTrackerUrl(true);
 
         dayData.exercises.forEach((exercise) => {
             const card = document.createElement("div");
@@ -224,17 +276,47 @@
     function initTracker() {
         document.getElementById("weekSelect").addEventListener("change", (e) => {
             window.WorkoutApp.selectedWeek = parseInt(e.target.value, 10);
+            window.WorkoutApp.selectedDayIndex = null;
             populateDays();
+            syncTrackerUrl(false);
         });
 
         document.getElementById("daySelect").addEventListener("change", (e) => {
             window.WorkoutApp.selectedDayIndex = parseInt(e.target.value, 10);
             showDay();
+            syncTrackerUrl(false);
         });
 
         document.getElementById("deleteWeekBtn").addEventListener("click", deleteSelectedWeek);
     }
 
+    function applyTrackerStateFromUrl() {
+        if (window.location.pathname !== "/") {
+            return;
+        }
+
+        const trackerPage = document.getElementById("trackerPage");
+        if (!trackerPage || !trackerPage.classList.contains("active")) {
+            return;
+        }
+
+        if (!window.WorkoutApp.programs.length) {
+            return;
+        }
+
+        const params = getTrackerParamsFromUrl();
+        const matchingWeek = window.WorkoutApp.programs.find((program) => program.week === params.week);
+        if (!matchingWeek) {
+            return;
+        }
+
+        window.WorkoutApp.selectedWeek = matchingWeek.week;
+        document.getElementById("weekSelect").value = String(matchingWeek.week);
+        window.WorkoutApp.selectedDayIndex = params.day;
+        populateDays();
+    }
+
+    window.WorkoutApp.applyTrackerStateFromUrl = applyTrackerStateFromUrl;
     window.WorkoutApp.initTracker = initTracker;
     window.WorkoutApp.loadPrograms = loadPrograms;
 })();
