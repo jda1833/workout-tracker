@@ -1,4 +1,8 @@
 (function () {
+    function isMobileTrackerOnlyMode() {
+        return window.innerWidth < 1024;
+    }
+
     const pageRoutes = {
         trackerPage: "/",
         checkInPage: "/check-in",
@@ -8,6 +12,9 @@
     };
 
     function getPageFromPath(pathname) {
+        if (isMobileTrackerOnlyMode()) {
+            return "trackerPage";
+        }
         if (pathname === "/check-in") {
             return "checkInPage";
         }
@@ -33,10 +40,11 @@
     }
 
     function navigateToPage(pageId, replaceState) {
-        setActivePage(pageId);
+        const resolvedPageId = isMobileTrackerOnlyMode() ? "trackerPage" : pageId;
+        setActivePage(resolvedPageId);
 
-        const nextPath = pageRoutes[pageId] || "/";
-        const nextSearch = pageId === "trackerPage" ? window.location.search : "";
+        const nextPath = pageRoutes[resolvedPageId] || "/";
+        const nextSearch = resolvedPageId === "trackerPage" ? window.location.search : "";
         const nextUrl = nextPath + nextSearch;
         const currentUrl = window.location.pathname + window.location.search;
         if (currentUrl !== nextUrl) {
@@ -57,6 +65,17 @@
             setActivePage(getPageFromPath(window.location.pathname));
             if (typeof window.WorkoutApp.applyTrackerStateFromUrl === "function") {
                 window.WorkoutApp.applyTrackerStateFromUrl();
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            if (!isMobileTrackerOnlyMode()) {
+                return;
+            }
+
+            setActivePage("trackerPage");
+            if (window.location.pathname !== "/") {
+                window.history.replaceState({}, "", "/" + window.location.search);
             }
         });
 
