@@ -544,6 +544,10 @@ td input {
     font-size: 1rem;
 }
 
+.mobile-stopwatch {
+    display: none;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -666,7 +670,7 @@ td input {
     }
 
     .content {
-        padding-bottom: var(--space-6);
+        padding-bottom: 168px;
     }
 
     #checkInPage,
@@ -674,6 +678,45 @@ td input {
     #uploadPage,
     #linksPage {
         display: none !important;
+    }
+
+    .mobile-stopwatch {
+        position: fixed;
+        left: var(--space-4);
+        right: var(--space-4);
+        bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+        z-index: 35;
+        display: grid;
+        gap: var(--space-3);
+        padding: var(--space-4);
+        border: 1px solid rgba(199, 208, 220, 0.92);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+        backdrop-filter: blur(16px);
+    }
+
+    .mobile-stopwatch-display {
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-sm);
+        background: linear-gradient(180deg, #f8fbff 0%, #edf3fc 100%);
+        color: #14304d;
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-align: center;
+    }
+
+    .mobile-stopwatch-controls {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-2);
+    }
+
+    .mobile-stopwatch-controls button {
+        min-width: 0;
+        min-height: 44px;
+        padding: 0 12px;
     }
 }
 
