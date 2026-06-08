@@ -7,6 +7,7 @@
         trackerPage: "/",
         checkInPage: "/check-in",
         analyticsPage: "/analytics",
+        toolsPage: "/tools",
         uploadPage: "/",
         linksPage: "/",
     };
@@ -15,12 +16,9 @@
         if (isMobileTrackerOnlyMode()) {
             return "trackerPage";
         }
-        if (pathname === "/check-in") {
-            return "checkInPage";
-        }
-        if (pathname === "/analytics") {
-            return "analyticsPage";
-        }
+        if (pathname === "/check-in") return "checkInPage";
+        if (pathname === "/analytics") return "analyticsPage";
+        if (pathname === "/tools") return "toolsPage";
         return "trackerPage";
     }
 

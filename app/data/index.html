@@ -19,8 +19,9 @@
             <a class="nav-link active" href="/" data-page="trackerPage">Program Tracker</a>
             <a class="nav-link" href="/check-in" data-page="checkInPage">Weekly Check-In</a>
             <a class="nav-link" href="/analytics" data-page="analyticsPage">Analytics</a>
-            <a class="nav-link" href="/" data-page="uploadPage">Upload Program</a>
-            <a class="nav-link" href="/" data-page="linksPage">Other Pages</a>
+            <a class="nav-link" href="/tools" data-page="toolsPage">PL Tools</a>
+            <a class="nav-link" href="/" data-page="uploadPage">Upload</a>
+            <a class="nav-link" href="/" data-page="linksPage">Links</a>
         </nav>
         <p id="appVersion" class="app-version">Version</p>
     </aside>
@@ -35,7 +36,6 @@
                     <input id="weekFilter" class="week-filter-input" type="text" placeholder="Filter weeks…" />
                     <select id="weekSelect"></select>
                 </div>
-
                 <div class="control-block">
                     <h2>Select Day</h2>
                     <select id="daySelect"></select>
@@ -83,6 +83,15 @@
             <h1>Analytics</h1>
             <p class="note">Track progression and trends across your saved weeks and check-ins.</p>
 
+            <div class="analytics-settings">
+                <span class="note">Units:</span>
+                <button type="button" data-analytics-unit="lbs">lbs</button>
+                <button type="button" data-analytics-unit="kg">kg</button>
+                <span class="note analytics-settings-sep">Gender (Wilks):</span>
+                <button type="button" data-analytics-gender="male">Male</button>
+                <button type="button" data-analytics-gender="female">Female</button>
+            </div>
+
             <div id="analyticsSummary" class="analytics-summary"></div>
 
             <div class="analytics-grid">
@@ -90,7 +99,7 @@
                     <div class="analytics-header">
                         <div>
                             <h2>Main Lift Progress</h2>
-                            <p class="note">Top set weight by week for Back Squat, Bench Press, and Deadlift.</p>
+                            <p class="note">Top set weight per lift per week.</p>
                         </div>
                         <div id="analyticsLiftLegend" class="chart-legend"></div>
                     </div>
@@ -100,8 +109,30 @@
                 <section class="analytics-card">
                     <div class="analytics-header">
                         <div>
+                            <h2>SBD Total</h2>
+                            <p class="note">Sum of top-set squat, bench, and deadlift each week.</p>
+                        </div>
+                        <div id="analyticsSbdLegend" class="chart-legend"></div>
+                    </div>
+                    <div id="sbdTotalChart" class="chart-shell"></div>
+                </section>
+
+                <section class="analytics-card">
+                    <div class="analytics-header">
+                        <div>
+                            <h2>Wilks Score</h2>
+                            <p class="note">Bodyweight-adjusted total from check-in data. Requires bodyweight in check-ins.</p>
+                        </div>
+                        <div id="analyticsWilksLegend" class="chart-legend"></div>
+                    </div>
+                    <div id="wilksChart" class="chart-shell"></div>
+                </section>
+
+                <section class="analytics-card">
+                    <div class="analytics-header">
+                        <div>
                             <h2>Daily Volume Trend</h2>
-                            <p class="note">Estimated total volume (weight × reps) for each training day over time.</p>
+                            <p class="note">Estimated total volume (weight × reps) per training day.</p>
                         </div>
                         <div id="analyticsVolumeLegend" class="chart-legend"></div>
                     </div>
@@ -112,7 +143,7 @@
                     <div class="analytics-header">
                         <div>
                             <h2>Average RPE per Week</h2>
-                            <p class="note">Mean RPE across all logged sets for each week.</p>
+                            <p class="note">Mean RPE across all logged sets.</p>
                         </div>
                         <div id="analyticsRpeLegend" class="chart-legend"></div>
                     </div>
@@ -123,13 +154,19 @@
                     <div class="analytics-header">
                         <div>
                             <h2>Bodyweight Trend</h2>
-                            <p class="note">Bodyweight from your weekly check-ins over time.</p>
+                            <p class="note">Bodyweight from weekly check-ins.</p>
                         </div>
                         <div id="analyticsBodyweightLegend" class="chart-legend"></div>
                     </div>
                     <div id="bodyweightChart" class="chart-shell"></div>
                 </section>
             </div>
+        </section>
+
+        <section id="toolsPage" class="page">
+            <h1>Powerlifting Tools</h1>
+            <p class="note">Calculators and planners for training and competition.</p>
+            <div id="toolsContent"></div>
         </section>
 
         <section id="uploadPage" class="page">
@@ -154,24 +191,19 @@
             <p class="note">Quick links to backend and API pages.</p>
             <div class="link-grid">
                 <a class="link-card" href="/docs" target="_blank" rel="noopener noreferrer">
-                    <strong>Swagger Docs</strong><br />
-                    Open interactive API docs.
+                    <strong>Swagger Docs</strong><br />Open interactive API docs.
                 </a>
                 <a class="link-card" href="/redoc" target="_blank" rel="noopener noreferrer">
-                    <strong>ReDoc</strong><br />
-                    Open API reference documentation.
+                    <strong>ReDoc</strong><br />Open API reference documentation.
                 </a>
                 <a class="link-card" href="/programs/" target="_blank" rel="noopener noreferrer">
-                    <strong>Programs JSON</strong><br />
-                    View all saved programs.
+                    <strong>Programs JSON</strong><br />View all saved programs.
                 </a>
                 <a class="link-card" href="/check-ins/" target="_blank" rel="noopener noreferrer">
-                    <strong>Check-Ins JSON</strong><br />
-                    View all saved check-ins.
+                    <strong>Check-Ins JSON</strong><br />View all saved check-ins.
                 </a>
                 <a class="link-card" href="/export/" target="_blank" rel="noopener noreferrer">
-                    <strong>Export All Data</strong><br />
-                    Download all programs and check-ins as JSON.
+                    <strong>Export All Data</strong><br />Download all programs and check-ins as JSON.
                 </a>
             </div>
         </section>
@@ -194,6 +226,7 @@
 <script src="/assets/js/checkin.js"></script>
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/upload.js"></script>
+<script src="/assets/js/tools.js"></script>
 <script src="/assets/js/stopwatch.js"></script>
 <script src="/assets/js/app.js"></script>
 </body>

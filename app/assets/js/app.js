@@ -40,6 +40,9 @@
         if (typeof window.WorkoutApp.initUpload === "function") {
             window.WorkoutApp.initUpload();
         }
+        if (typeof window.WorkoutApp.initTools === "function") {
+            window.WorkoutApp.initTools();
+        }
         if (typeof window.WorkoutApp.initStopwatch === "function") {
             window.WorkoutApp.initStopwatch();
         }

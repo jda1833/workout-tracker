@@ -182,6 +182,10 @@
                 headRow.appendChild(th);
             });
 
+            const e1rmHeader = document.createElement("th");
+            e1rmHeader.textContent = "e1RM";
+            headRow.appendChild(e1rmHeader);
+
             thead.appendChild(headRow);
             table.appendChild(thead);
 
@@ -209,6 +213,23 @@
                 completeCell.appendChild(completeInput);
                 row.appendChild(completeCell);
 
+                // e1RM cell created before key loop so it's in closure scope for onchange handlers
+                const e1rmCell = document.createElement("td");
+                e1rmCell.dataset.label = "e1RM";
+                e1rmCell.className = "e1rm-cell";
+
+                function refreshE1rm() {
+                    if (typeof window.WorkoutApp.calcE1RM !== "function") return;
+                    const cur = exercise.sets[setIndex];
+                    const val = window.WorkoutApp.calcE1RM(
+                        cur.actual_weight || cur.prescribed_weight || "",
+                        cur.reps || cur.target_reps || "",
+                        cur.RPE || ""
+                    );
+                    e1rmCell.textContent = val !== null ? Math.round(val) : "—";
+                }
+                refreshE1rm();
+
                 setKeys.forEach((key) => {
                     const cell = document.createElement("td");
                     cell.dataset.label = key;
@@ -218,12 +239,14 @@
                     input.onchange = async (e) => {
                         exercise.sets[setIndex][key] = e.target.value;
                         updateCompletedRowState(row, exercise.sets[setIndex]);
+                        refreshE1rm();
                         await updateProgramOnServer();
                     };
                     cell.appendChild(input);
                     row.appendChild(cell);
                 });
 
+                row.appendChild(e1rmCell);
                 updateCompletedRowState(row, setItem);
                 tbody.appendChild(row);
             });
