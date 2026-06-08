@@ -9,13 +9,20 @@ router = APIRouter()
 
 
 @router.get("/programs/")
-def list_programs(db: Session = Depends(get_db)):
-    return db.query(models.Program).order_by(models.Program.week.asc()).all()
+def list_programs(include_deleted: bool = False, db: Session = Depends(get_db)):
+    query = db.query(models.Program)
+    if not include_deleted:
+        query = query.filter(models.Program.deleted == False)
+    return query.order_by(models.Program.week.asc()).all()
 
 
 @router.get("/programs/{week}")
 def get_program(week: int, db: Session = Depends(get_db)):
-    program = db.query(models.Program).filter(models.Program.week == week).first()
+    program = (
+        db.query(models.Program)
+        .filter(models.Program.week == week, models.Program.deleted == False)
+        .first()
+    )
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
     return program.json_data
@@ -23,7 +30,11 @@ def get_program(week: int, db: Session = Depends(get_db)):
 
 @router.post("/update-program/{program_id}")
 def update_program(program_id: int, json_data: dict, db: Session = Depends(get_db)):
-    program = db.query(models.Program).filter(models.Program.id == program_id).first()
+    program = (
+        db.query(models.Program)
+        .filter(models.Program.id == program_id, models.Program.deleted == False)
+        .first()
+    )
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
 
@@ -34,7 +45,11 @@ def update_program(program_id: int, json_data: dict, db: Session = Depends(get_d
     next_week = json_data["week"]
     existing_program = (
         db.query(models.Program)
-        .filter(models.Program.week == next_week, models.Program.id != program_id)
+        .filter(
+            models.Program.week == next_week,
+            models.Program.id != program_id,
+            models.Program.deleted == False,
+        )
         .first()
     )
     if existing_program:
@@ -52,7 +67,16 @@ def delete_program(program_id: int, db: Session = Depends(get_db)):
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
-
-    db.delete(program)
+    program.deleted = True
     db.commit()
     return {"status": "deleted"}
+
+
+@router.post("/programs/{program_id}/restore")
+def restore_program(program_id: int, db: Session = Depends(get_db)):
+    program = db.query(models.Program).filter(models.Program.id == program_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    program.deleted = False
+    db.commit()
+    return {"status": "restored"}

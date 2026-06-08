@@ -2,10 +2,11 @@ services:
   workout-tracker:
     pull_policy: build
     build:
-      context: https://github.com/jda1833/workout-tracker.git#main
+      context: https://github.com/jda1833/workout-tracker.git#v2.8
       dockerfile: DockerFile
     ports:
-      - "8000:8000"
+      - 8000:8000
     volumes:
-      - ./data/programs.db:/app/app/data/programs.db
+      - /data/dockge/stacks/workout-tracker/data/programs.db:/app/app/data/programs.db
     restart: unless-stopped
+networks: {}

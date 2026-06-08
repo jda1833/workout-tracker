@@ -4,10 +4,7 @@
     }
 
     function parseIntegerParam(value) {
-        if (value === null || value === "") {
-            return null;
-        }
-
+        if (value === null || value === "") return null;
         const parsed = parseInt(value, 10);
         return Number.isNaN(parsed) ? null : parsed;
     }
@@ -21,9 +18,7 @@
     }
 
     function syncTrackerUrl(replaceState) {
-        if (window.location.pathname !== "/") {
-            return;
-        }
+        if (window.location.pathname !== "/") return;
 
         const params = new URLSearchParams(window.location.search);
         if (window.WorkoutApp.selectedWeek === null) {
@@ -42,8 +37,7 @@
         const nextUrl = nextSearch ? "/?" + nextSearch : "/";
         const currentUrl = window.location.pathname + window.location.search;
         if (currentUrl !== nextUrl) {
-            const historyMethod = replaceState ? "replaceState" : "pushState";
-            window.history[historyMethod]({}, "", nextUrl);
+            window.history[replaceState ? "replaceState" : "pushState"]({}, "", nextUrl);
         }
     }
 
@@ -58,6 +52,17 @@
 
     function updateCompletedRowState(row, setItem) {
         row.classList.toggle("is-complete", hasCompletedReps(setItem) || isManuallyCompleted(setItem));
+    }
+
+    function filterWeekSelect() {
+        const filter = document.getElementById("weekFilter");
+        const weekSelect = document.getElementById("weekSelect");
+        if (!filter || !weekSelect) return;
+
+        const query = filter.value.trim().toLowerCase();
+        Array.from(weekSelect.options).forEach((option) => {
+            option.hidden = query !== "" && !option.textContent.toLowerCase().includes(query);
+        });
     }
 
     async function loadPrograms() {
@@ -76,7 +81,7 @@
 
         if (window.WorkoutApp.programs.length) {
             const requestedWeek = getTrackerParamsFromUrl().week;
-            const matchingWeek = window.WorkoutApp.programs.find((program) => program.week === requestedWeek);
+            const matchingWeek = window.WorkoutApp.programs.find((p) => p.week === requestedWeek);
             window.WorkoutApp.selectedWeek = matchingWeek ? matchingWeek.week : window.WorkoutApp.programs[0].week;
             weekSelect.value = window.WorkoutApp.selectedWeek;
             populateDays();
@@ -88,6 +93,8 @@
             document.getElementById("dayContainer").innerHTML = "<p class='note'>No programs found yet. Use Upload Program to add one.</p>";
             syncTrackerUrl(true);
         }
+
+        filterWeekSelect();
 
         if (typeof window.WorkoutApp.onProgramsLoaded === "function") {
             window.WorkoutApp.onProgramsLoaded();
@@ -181,6 +188,7 @@
             const tbody = document.createElement("tbody");
             exercise.sets.forEach((setItem, setIndex) => {
                 const row = document.createElement("tr");
+
                 const setNumberCell = document.createElement("td");
                 setNumberCell.dataset.label = "Set";
                 setNumberCell.textContent = String(setIndex + 1);
@@ -215,6 +223,7 @@
                     cell.appendChild(input);
                     row.appendChild(cell);
                 });
+
                 updateCompletedRowState(row, setItem);
                 tbody.appendChild(row);
             });
@@ -227,10 +236,7 @@
 
     async function updateProgramOnServer() {
         const weekData = window.WorkoutApp.programs.find((p) => p.week === window.WorkoutApp.selectedWeek);
-        if (!weekData) {
-            return;
-        }
-
+        if (!weekData) return;
         await fetch("/update-program/" + weekData.id, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -245,32 +251,81 @@
             return;
         }
 
-        const confirmed = window.confirm("Delete Week " + weekData.week + "? This cannot be undone.");
-        if (!confirmed) {
-            return;
-        }
+        const confirmed = window.confirm("Move Week " + weekData.week + " to trash? You can restore it from the Deleted Weeks section.");
+        if (!confirmed) return;
 
         setTrackerStatus("Deleting week " + weekData.week + "...");
-
         try {
-            const res = await fetch("/programs/" + weekData.id, {
-                method: "DELETE",
-            });
+            const res = await fetch("/programs/" + weekData.id, {method: "DELETE"});
             if (!res.ok) {
                 const err = await res.json().catch(() => ({detail: "Delete failed"}));
                 setTrackerStatus("Delete failed: " + (err.detail || "Unknown error"));
                 return;
             }
-
             await loadPrograms();
-            if (window.WorkoutApp.selectedWeek === null) {
-                setTrackerStatus("Week " + weekData.week + " deleted. No programs remain.");
-            } else {
-                setTrackerStatus("Week " + weekData.week + " deleted.");
-            }
+            setTrackerStatus(
+                window.WorkoutApp.selectedWeek === null
+                    ? "Week " + weekData.week + " deleted. No programs remain."
+                    : "Week " + weekData.week + " deleted."
+            );
+            renderDeletedWeeks();
         } catch {
             setTrackerStatus("Delete failed: network error.");
         }
+    }
+
+    async function renderDeletedWeeks() {
+        const container = document.getElementById("deletedWeeksContainer");
+        if (!container) return;
+
+        try {
+            const res = await fetch("/programs/?include_deleted=true");
+            const all = await res.json();
+            const deleted = all.filter((p) => p.deleted);
+
+            if (!deleted.length) {
+                container.innerHTML = "<p class='note'>No deleted weeks.</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            deleted.forEach((program) => {
+                const row = document.createElement("div");
+                row.className = "deleted-week-row";
+
+                const label = document.createElement("span");
+                label.textContent = "Week " + program.week;
+                row.appendChild(label);
+
+                const restoreBtn = document.createElement("button");
+                restoreBtn.type = "button";
+                restoreBtn.className = "btn-restore";
+                restoreBtn.textContent = "Restore";
+                restoreBtn.onclick = async () => {
+                    await fetch("/programs/" + program.id + "/restore", {method: "POST"});
+                    await loadPrograms();
+                    renderDeletedWeeks();
+                    setTrackerStatus("Week " + program.week + " restored.");
+                };
+                row.appendChild(restoreBtn);
+                container.appendChild(row);
+            });
+        } catch {
+            container.innerHTML = "<p class='note'>Could not load deleted weeks.</p>";
+        }
+    }
+
+    function initDeletedWeeksToggle() {
+        const toggleBtn = document.getElementById("showDeletedBtn");
+        const panel = document.getElementById("deletedWeeksPanel");
+        if (!toggleBtn || !panel) return;
+
+        toggleBtn.addEventListener("click", () => {
+            const isOpen = panel.style.display !== "none";
+            panel.style.display = isOpen ? "none" : "block";
+            toggleBtn.textContent = isOpen ? "Show Deleted Weeks" : "Hide Deleted Weeks";
+            if (!isOpen) renderDeletedWeeks();
+        });
     }
 
     function initTracker() {
@@ -287,28 +342,25 @@
             syncTrackerUrl(false);
         });
 
+        const weekFilter = document.getElementById("weekFilter");
+        if (weekFilter) {
+            weekFilter.addEventListener("input", filterWeekSelect);
+        }
+
         document.getElementById("deleteWeekBtn").addEventListener("click", deleteSelectedWeek);
+        initDeletedWeeksToggle();
     }
 
     function applyTrackerStateFromUrl() {
-        if (window.location.pathname !== "/") {
-            return;
-        }
+        if (window.location.pathname !== "/") return;
 
         const trackerPage = document.getElementById("trackerPage");
-        if (!trackerPage || !trackerPage.classList.contains("active")) {
-            return;
-        }
-
-        if (!window.WorkoutApp.programs.length) {
-            return;
-        }
+        if (!trackerPage || !trackerPage.classList.contains("active")) return;
+        if (!window.WorkoutApp.programs.length) return;
 
         const params = getTrackerParamsFromUrl();
-        const matchingWeek = window.WorkoutApp.programs.find((program) => program.week === params.week);
-        if (!matchingWeek) {
-            return;
-        }
+        const matchingWeek = window.WorkoutApp.programs.find((p) => p.week === params.week);
+        if (!matchingWeek) return;
 
         window.WorkoutApp.selectedWeek = matchingWeek.week;
         document.getElementById("weekSelect").value = String(matchingWeek.week);

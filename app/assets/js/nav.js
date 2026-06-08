@@ -1,6 +1,6 @@
 (function () {
     function isMobileTrackerOnlyMode() {
-        return window.innerWidth < 1024;
+        return window.innerWidth < 768;
     }
 
     const pageRoutes = {

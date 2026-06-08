@@ -2,7 +2,8 @@
     const ROOT_KEYS = new Set(["week", "days"]);
     const DAY_KEYS = new Set(["day", "focus", "exercises"]);
     const EXERCISE_KEYS = new Set(["name", "sets"]);
-    const SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"]);
+    const SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE", "complete"]);
+    const REQUIRED_SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"]);
 
     function setStatus(text) {
         document.getElementById("uploadStatus").textContent = text;
@@ -81,7 +82,7 @@
                         return "days[" + dayIndex + "].exercises[" + exerciseIndex + "].sets[" + setIndex + "]." + unexpectedSetKey + " is not allowed.";
                     }
 
-                    for (const requiredKey of SET_KEYS) {
+                    for (const requiredKey of REQUIRED_SET_KEYS) {
                         if (!(requiredKey in setItem)) {
                             return "days[" + dayIndex + "].exercises[" + exerciseIndex + "].sets[" + setIndex + "]." + requiredKey + " is required.";
                         }

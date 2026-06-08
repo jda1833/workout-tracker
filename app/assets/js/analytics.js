@@ -1,7 +1,7 @@
 (function () {
     const liftConfig = [
-        {key: "Squat", label: "Back Squat", color: "#1f7ae0", matchers: ["back squat", "squat (5/3/1)"]},
-        {key: "Bench Press", label: "Bench Press", color: "#0f9d7a", matchers: ["bench press", "bench (5/3/1)"]},
+        {key: "Squat", label: "Back Squat", color: "#1f7ae0", matchers: ["back squat", "squat (5/3/1)", "squat"]},
+        {key: "Bench Press", label: "Bench Press", color: "#0f9d7a", matchers: ["bench press", "bench (5/3/1)", "bench"]},
         {key: "Deadlift", label: "Deadlift", color: "#d65c2e", matchers: ["deadlift (5/3/1)", "deadlift"]},
     ];
 
@@ -12,73 +12,41 @@
     }
 
     function parseNumber(value) {
-        if (typeof value === "number") {
-            return Number.isFinite(value) ? value : null;
-        }
-
+        if (typeof value === "number") return Number.isFinite(value) ? value : null;
         if (typeof value === "string") {
             const cleaned = value.trim();
-            if (!cleaned) {
-                return null;
-            }
+            if (!cleaned) return null;
             const parsed = Number(cleaned);
             return Number.isFinite(parsed) ? parsed : null;
         }
-
         return null;
     }
 
     function getTopSet(exercise) {
-        if (!exercise || !Array.isArray(exercise.sets) || !exercise.sets.length) {
-            return null;
-        }
+        if (!exercise || !Array.isArray(exercise.sets) || !exercise.sets.length) return null;
         return exercise.sets[exercise.sets.length - 1];
     }
 
     function getSeriesValue(obj, keys) {
-        if (!obj) {
-            return null;
-        }
-
+        if (!obj) return null;
         for (const key of keys) {
             const parsed = parseNumber(obj[key]);
-            if (parsed !== null) {
-                return parsed;
-            }
+            if (parsed !== null) return parsed;
         }
-
         return null;
     }
 
     function findExerciseByMatchers(exercises, matchers) {
-        const exactMatch = exercises.find((entry) => {
-            const name = normalizeText(entry.name);
-            return matchers.some((matcher) => name === matcher);
-        });
-
-        if (exactMatch) {
-            return exactMatch;
-        }
-
-        const startsWithMatch = exercises.find((entry) => {
-            const name = normalizeText(entry.name);
-            return matchers.some((matcher) => name.startsWith(matcher));
-        });
-
-        if (startsWithMatch) {
-            return startsWithMatch;
-        }
-
-        return exercises.find((entry) => {
-            const name = normalizeText(entry.name);
-            return matchers.some((matcher) => name.indexOf(matcher) !== -1);
-        }) || null;
+        const exactMatch = exercises.find((e) => matchers.some((m) => normalizeText(e.name) === m));
+        if (exactMatch) return exactMatch;
+        const startsMatch = exercises.find((e) => matchers.some((m) => normalizeText(e.name).startsWith(m)));
+        if (startsMatch) return startsMatch;
+        return exercises.find((e) => matchers.some((m) => normalizeText(e.name).indexOf(m) !== -1)) || null;
     }
 
     function getMainLiftProgress(program) {
         const days = program && program.json_data && Array.isArray(program.json_data.days) ? program.json_data.days : [];
         const exercises = days.flatMap((day) => Array.isArray(day.exercises) ? day.exercises : []);
-
         return liftConfig.map((lift) => {
             const exercise = findExerciseByMatchers(exercises, lift.matchers);
             const topSet = getTopSet(exercise);
@@ -96,18 +64,14 @@
         return days.map((day, index) => {
             const exercises = Array.isArray(day.exercises) ? day.exercises : [];
             let total = 0;
-
             exercises.forEach((exercise) => {
                 const sets = Array.isArray(exercise.sets) ? exercise.sets : [];
                 sets.forEach((setItem) => {
                     const weight = getSeriesValue(setItem, ["actual_weight", "prescribed_weight", "weight"]);
                     const reps = getSeriesValue(setItem, ["reps", "actual_reps", "target_reps"]);
-                    if (weight !== null && reps !== null) {
-                        total += weight * reps;
-                    }
+                    if (weight !== null && reps !== null) total += weight * reps;
                 });
             });
-
             return {
                 key: String(index),
                 label: day.day || "Day " + (index + 1),
@@ -117,7 +81,37 @@
         });
     }
 
-    function buildAnalyticsData(programs) {
+    function getAvgRpeSeries(programs) {
+        const points = programs.map((program) => {
+            const days = program.json_data && Array.isArray(program.json_data.days) ? program.json_data.days : [];
+            const rpeValues = [];
+            days.forEach((day) => {
+                (day.exercises || []).forEach((ex) => {
+                    (ex.sets || []).forEach((set) => {
+                        const rpe = parseNumber(set.RPE);
+                        if (rpe !== null) rpeValues.push(rpe);
+                    });
+                });
+            });
+            const avg = rpeValues.length ? rpeValues.reduce((a, b) => a + b, 0) / rpeValues.length : null;
+            return {x: program.week, y: avg !== null ? Math.round(avg * 10) / 10 : null};
+        }).filter((p) => p.y !== null);
+
+        return [{key: "avg_rpe", label: "Avg RPE", color: "#cc8b00", points}];
+    }
+
+    function getBodyweightSeries(checkIns) {
+        const points = (checkIns || []).map((ci) => {
+            const data = ci.json_data || {};
+            const weekNum = parseNumber(data.week_number) || parseNumber(ci.week);
+            const bw = parseNumber(data.bodyweight);
+            return weekNum !== null && bw !== null ? {x: weekNum, y: bw} : null;
+        }).filter(Boolean);
+
+        return [{key: "bodyweight", label: "Bodyweight", color: "#8f4ad0", points}];
+    }
+
+    function buildAnalyticsData(programs, checkIns) {
         const sortedPrograms = [...programs].sort((a, b) => a.week - b.week);
         const allDayLabels = [];
 
@@ -125,30 +119,18 @@
             const days = program && program.json_data && Array.isArray(program.json_data.days) ? program.json_data.days : [];
             days.forEach((day) => {
                 const label = day.day || "Day";
-                if (!allDayLabels.includes(label)) {
-                    allDayLabels.push(label);
-                }
+                if (!allDayLabels.includes(label)) allDayLabels.push(label);
             });
         });
 
         const liftSeriesMap = {};
         liftConfig.forEach((lift) => {
-            liftSeriesMap[lift.key] = {
-                key: lift.key,
-                label: lift.label,
-                color: lift.color,
-                points: [],
-            };
+            liftSeriesMap[lift.key] = {key: lift.key, label: lift.label, color: lift.color, points: []};
         });
 
         const daySeriesMap = {};
         allDayLabels.forEach((label, index) => {
-            daySeriesMap[label] = {
-                key: label,
-                label: label,
-                color: volumePalette[index % volumePalette.length],
-                points: [],
-            };
+            daySeriesMap[label] = {key: label, label, color: volumePalette[index % volumePalette.length], points: []};
         });
 
         sortedPrograms.forEach((program) => {
@@ -156,38 +138,40 @@
             getMainLiftProgress(program).forEach((lift) => {
                 liftSeriesMap[lift.key].points.push({x: week, y: lift.value});
             });
-
             const volumeEntries = getDayVolumes(program);
             allDayLabels.forEach((label) => {
-                const dayEntry = volumeEntries.find((entry) => entry.label === label);
+                const dayEntry = volumeEntries.find((e) => e.label === label);
                 daySeriesMap[label].points.push({x: week, y: dayEntry ? dayEntry.value : null});
             });
         });
 
+        const savedWeeks = sortedPrograms.length;
+        const weekRange = savedWeeks
+            ? "Week " + sortedPrograms[0].week + " — Week " + sortedPrograms[savedWeeks - 1].week
+            : "No data";
+
         return {
-            totalPrograms: sortedPrograms.length,
-            weekRange: sortedPrograms.length ? "Week " + sortedPrograms[0].week + " to Week " + sortedPrograms[sortedPrograms.length - 1].week : "No data",
+            totalPrograms: savedWeeks,
+            weekRange,
+            checkInCount: (checkIns || []).length,
             liftSeries: Object.values(liftSeriesMap),
             daySeries: Object.values(daySeriesMap),
+            rpeSeries: getAvgRpeSeries(sortedPrograms),
+            bodyweightSeries: getBodyweightSeries(checkIns),
         };
     }
 
     function renderLegend(containerId, series) {
         const container = document.getElementById(containerId);
-        if (!container) {
-            return;
-        }
-
+        if (!container) return;
         container.innerHTML = "";
         series.forEach((entry) => {
             const item = document.createElement("span");
             item.className = "chart-legend-item";
-
             const swatch = document.createElement("span");
             swatch.className = "chart-legend-swatch";
             swatch.style.backgroundColor = entry.color;
             item.appendChild(swatch);
-
             const label = document.createElement("span");
             label.textContent = entry.label;
             item.appendChild(label);
@@ -195,16 +179,14 @@
         });
     }
 
-    function renderSummary(totalPrograms, weekRange) {
+    function renderSummary(totalPrograms, weekRange, checkInCount) {
         const container = document.getElementById("analyticsSummary");
-        if (!container) {
-            return;
-        }
-
+        if (!container) return;
         container.innerHTML = "";
         [
             {label: "Saved Weeks", value: String(totalPrograms)},
             {label: "Tracked Range", value: weekRange},
+            {label: "Check-Ins", value: String(checkInCount)},
         ].forEach((item) => {
             const pill = document.createElement("div");
             pill.className = "analytics-pill";
@@ -215,9 +197,7 @@
 
     function renderChart(containerId, series, yAxisLabel) {
         const container = document.getElementById(containerId);
-        if (!container) {
-            return;
-        }
+        if (!container) return;
 
         const allPoints = series.flatMap((entry) => entry.points.filter((point) => point.y !== null));
         if (!allPoints.length) {
@@ -235,13 +215,9 @@
         const plotHeight = height - padding.top - padding.bottom;
 
         function xScale(value) {
-            if (xValues.length === 1) {
-                return padding.left + plotWidth / 2;
-            }
-            const index = xValues.indexOf(value);
-            return padding.left + (index / (xValues.length - 1)) * plotWidth;
+            if (xValues.length === 1) return padding.left + plotWidth / 2;
+            return padding.left + (xValues.indexOf(value) / (xValues.length - 1)) * plotWidth;
         }
-
         function yScale(value) {
             return padding.top + plotHeight - (value / yTop) * plotHeight;
         }
@@ -257,7 +233,6 @@
         for (let tick = 0; tick <= yTicks; tick += 1) {
             const value = (yTop / yTicks) * tick;
             const y = yScale(value);
-
             const grid = document.createElementNS(ns, "line");
             grid.setAttribute("x1", padding.left);
             grid.setAttribute("x2", width - padding.right);
@@ -265,14 +240,13 @@
             grid.setAttribute("y2", y);
             grid.setAttribute("class", "chart-grid-line");
             svg.appendChild(grid);
-
-            const label = document.createElementNS(ns, "text");
-            label.setAttribute("x", padding.left - 10);
-            label.setAttribute("y", y + 4);
-            label.setAttribute("text-anchor", "end");
-            label.setAttribute("class", "chart-label");
-            label.textContent = Math.round(value).toString();
-            svg.appendChild(label);
+            const lbl = document.createElementNS(ns, "text");
+            lbl.setAttribute("x", padding.left - 10);
+            lbl.setAttribute("y", y + 4);
+            lbl.setAttribute("text-anchor", "end");
+            lbl.setAttribute("class", "chart-label");
+            lbl.textContent = Math.round(value).toString();
+            svg.appendChild(lbl);
         }
 
         const xAxis = document.createElementNS(ns, "line");
@@ -293,14 +267,13 @@
 
         xValues.forEach((week) => {
             const x = xScale(week);
-
-            const label = document.createElementNS(ns, "text");
-            label.setAttribute("x", x);
-            label.setAttribute("y", height - padding.bottom + 22);
-            label.setAttribute("text-anchor", "middle");
-            label.setAttribute("class", "chart-label");
-            label.textContent = "W" + week;
-            svg.appendChild(label);
+            const lbl = document.createElementNS(ns, "text");
+            lbl.setAttribute("x", x);
+            lbl.setAttribute("y", height - padding.bottom + 22);
+            lbl.setAttribute("text-anchor", "middle");
+            lbl.setAttribute("class", "chart-label");
+            lbl.textContent = "W" + week;
+            svg.appendChild(lbl);
         });
 
         const title = document.createElementNS(ns, "text");
@@ -316,14 +289,11 @@
 
         series.forEach((entry) => {
             const visiblePoints = entry.points.filter((point) => point.y !== null);
-            if (!visiblePoints.length) {
-                return;
-            }
+            if (!visiblePoints.length) return;
 
             const path = document.createElementNS(ns, "path");
             const pathData = visiblePoints.map((point, index) => {
-                const prefix = index === 0 ? "M" : "L";
-                return prefix + xScale(point.x) + " " + yScale(point.y);
+                return (index === 0 ? "M" : "L") + xScale(point.x) + " " + yScale(point.y);
             }).join(" ");
             path.setAttribute("d", pathData);
             path.setAttribute("stroke", entry.color);
@@ -333,11 +303,9 @@
             visiblePoints.forEach((point) => {
                 const pointGroup = document.createElementNS(ns, "g");
                 pointGroup.setAttribute("class", "chart-point-group");
-
                 const tooltip = document.createElementNS(ns, "title");
                 tooltip.textContent = entry.label + " | Week " + point.x + " | " + formatValue(point.y);
                 pointGroup.appendChild(tooltip);
-
                 const hitArea = document.createElementNS(ns, "circle");
                 hitArea.setAttribute("cx", xScale(point.x));
                 hitArea.setAttribute("cy", yScale(point.y));
@@ -345,7 +313,6 @@
                 hitArea.setAttribute("fill", "transparent");
                 hitArea.setAttribute("class", "chart-point-hit");
                 pointGroup.appendChild(hitArea);
-
                 const circle = document.createElementNS(ns, "circle");
                 circle.setAttribute("cx", xScale(point.x));
                 circle.setAttribute("cy", yScale(point.y));
@@ -353,7 +320,6 @@
                 circle.setAttribute("fill", entry.color);
                 circle.setAttribute("class", "chart-point");
                 pointGroup.appendChild(circle);
-
                 svg.appendChild(pointGroup);
             });
         });
@@ -363,19 +329,30 @@
     }
 
     function renderAnalytics() {
-        const data = buildAnalyticsData(window.WorkoutApp.programs || []);
-        renderSummary(data.totalPrograms, data.weekRange);
+        const data = buildAnalyticsData(window.WorkoutApp.programs || [], window.WorkoutApp.checkIns || []);
+        renderSummary(data.totalPrograms, data.weekRange, data.checkInCount);
         renderLegend("analyticsLiftLegend", data.liftSeries);
         renderLegend("analyticsVolumeLegend", data.daySeries);
-        renderChart("liftProgressChart", data.liftSeries, "Top Set Weight");
-        renderChart("dayVolumeChart", data.daySeries, "Total Day Volume");
+        renderChart("liftProgressChart", data.liftSeries, "Top Set Weight (lbs)");
+        renderChart("dayVolumeChart", data.daySeries, "Total Day Volume (lbs × reps)");
+        renderLegend("analyticsRpeLegend", data.rpeSeries);
+        renderChart("rpeChart", data.rpeSeries, "Average RPE");
+        renderLegend("analyticsBodyweightLegend", data.bodyweightSeries);
+        renderChart("bodyweightChart", data.bodyweightSeries, "Bodyweight (lbs)");
     }
 
     function initAnalytics() {
         renderAnalytics();
     }
 
-    window.WorkoutApp.onProgramsLoaded = function () {
+    window.WorkoutApp.onProgramsLoaded = async function () {
+        try {
+            const res = await fetch("/check-ins/");
+            window.WorkoutApp.checkIns = res.ok ? await res.json() : [];
+        } catch {
+            window.WorkoutApp.checkIns = [];
+        }
+
         if (typeof window.WorkoutApp.populateCheckInWeeks === "function") {
             window.WorkoutApp.populateCheckInWeeks();
         }
