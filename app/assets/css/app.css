@@ -174,6 +174,11 @@ h1 {
     letter-spacing: -0.02em;
 }
 
+h1 + .note {
+    font-size: 0.98rem;
+    margin-bottom: var(--space-6);
+}
+
 h2 {
     margin: 0 0 var(--space-2);
     color: #20344d;
@@ -289,12 +294,19 @@ button:focus-visible {
 }
 
 #deleteWeekBtn {
-    background: var(--error);
+    background: transparent;
+    border: 1.5px solid var(--error);
+    color: var(--error);
+    box-shadow: none;
+    min-height: 38px;
+    font-size: 0.84rem;
 }
 
 #deleteWeekBtn:hover,
 #deleteWeekBtn:focus-visible {
-    background: #8f1d18;
+    background: var(--error);
+    color: #ffffff;
+    box-shadow: var(--shadow-1);
 }
 
 .status {
@@ -305,6 +317,10 @@ button:focus-visible {
     color: #29435f;
     font-size: 0.92rem;
     line-height: 1.4;
+}
+
+.status:empty {
+    display: none;
 }
 
 .json-box {
@@ -551,7 +567,7 @@ td input {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(4px);
+        transform: translateY(8px);
     }
     to {
         opacity: 1;
@@ -835,6 +851,24 @@ td input {
 
     .chart-shell {
         overflow: hidden;
+    }
+
+    .analytics-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+    }
+
+    .analytics-header > div:first-child {
+        min-width: 0;
+    }
+
+    .analytics-header .chart-legend {
+        flex-shrink: 0;
+        justify-content: flex-end;
+        max-width: 48%;
     }
 
     .button-row {
@@ -1211,6 +1245,46 @@ td input {
     .e1rm-cell {
         color: #7eadd4;
     }
+
+    input[type="file"] {
+        background: var(--surface-container-high);
+        border-color: var(--outline-strong);
+        color: var(--ink-muted);
+    }
+
+    input[type="file"]:hover {
+        background: var(--primary-soft);
+        border-color: var(--primary);
+        color: var(--ink);
+    }
+
+    .settings-group {
+        border-color: var(--outline);
+    }
+
+    .settings-group .unit-btn {
+        border-right-color: var(--outline);
+    }
+
+    .json-details {
+        border-top-color: var(--outline);
+    }
+
+    .json-details > summary:hover {
+        color: var(--primary);
+    }
+
+    #deleteWeekBtn {
+        background: transparent;
+        border-color: var(--error);
+        color: var(--error);
+    }
+
+    #deleteWeekBtn:hover,
+    #deleteWeekBtn:focus-visible {
+        background: var(--error);
+        color: #ffffff;
+    }
 }
 
 /* ─── Analytics settings row ─── */
@@ -1385,4 +1459,94 @@ td input {
     .attempt-inputs.checkin-fields {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+}
+
+/* ─── File input ─── */
+input[type="file"] {
+    display: block;
+    margin-bottom: var(--space-3);
+    background: var(--surface-container-high);
+    border-style: dashed;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+input[type="file"]:hover {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--ink);
+}
+
+/* ─── Segmented toggle groups (analytics settings) ─── */
+.settings-group {
+    display: inline-flex;
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.settings-group > button,
+.settings-group .unit-btn {
+    border: none;
+    border-right: 1px solid var(--outline);
+    border-radius: 0;
+    min-height: 36px;
+    box-shadow: none;
+}
+
+.settings-group > button:last-child,
+.settings-group .unit-btn:last-child {
+    border-right: none;
+}
+
+.settings-group > button:hover,
+.settings-group > button:focus-visible {
+    transform: none;
+    box-shadow: none;
+}
+
+/* ─── JSON details / disclosure ─── */
+.json-details {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--outline);
+}
+
+.json-details > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
+    color: var(--ink-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    transition: color 0.15s ease;
+}
+
+.json-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.json-details > summary::before {
+    content: "▶";
+    display: inline-block;
+    font-size: 0.65em;
+    transition: transform 0.2s ease;
+}
+
+.json-details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.json-details > summary:hover {
+    color: var(--primary);
+}
+
+.json-details[open] > summary {
+    color: var(--ink);
+    margin-bottom: var(--space-4);
 }

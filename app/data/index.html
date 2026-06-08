@@ -72,9 +72,14 @@
             <div class="program-card">
                 <div class="button-row">
                     <button id="resetCheckInBtn" type="button">Reset Check-In</button>
-                    <button id="copyCheckInBtn" type="button">Copy Check-In JSON</button>
                 </div>
-                <textarea id="checkInTextarea" class="json-box" spellcheck="false"></textarea>
+                <details class="json-details">
+                    <summary>View / Copy JSON</summary>
+                    <textarea id="checkInTextarea" class="json-box" spellcheck="false"></textarea>
+                    <div class="button-row">
+                        <button id="copyCheckInBtn" type="button">Copy Check-In JSON</button>
+                    </div>
+                </details>
                 <div id="checkInStatus" class="status"></div>
             </div>
         </section>
@@ -85,11 +90,15 @@
 
             <div class="analytics-settings">
                 <span class="note">Units:</span>
-                <button type="button" data-analytics-unit="lbs">lbs</button>
-                <button type="button" data-analytics-unit="kg">kg</button>
+                <div class="settings-group">
+                    <button type="button" data-analytics-unit="lbs">lbs</button>
+                    <button type="button" data-analytics-unit="kg">kg</button>
+                </div>
                 <span class="note analytics-settings-sep">Gender (Wilks):</span>
-                <button type="button" data-analytics-gender="male">Male</button>
-                <button type="button" data-analytics-gender="female">Female</button>
+                <div class="settings-group">
+                    <button type="button" data-analytics-gender="male">Male</button>
+                    <button type="button" data-analytics-gender="female">Female</button>
+                </div>
             </div>
 
             <div id="analyticsSummary" class="analytics-summary"></div>
@@ -173,7 +182,7 @@
             <h1>Upload Workout JSON</h1>
             <p class="note">Upload a file or paste JSON matching the full weekly program format.</p>
             <input id="uploadFile" type="file" accept=".json,application/json" />
-            <div>
+            <div class="button-row">
                 <button id="uploadBtn" type="button">Upload</button>
             </div>
             <p class="note">Or paste JSON below and validate before uploading.</p>
