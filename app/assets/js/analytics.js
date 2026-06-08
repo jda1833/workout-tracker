@@ -13,7 +13,9 @@
     function parseNumber(value) {
         if (typeof value === "number") return Number.isFinite(value) ? value : null;
         if (typeof value === "string") {
-            const n = Number(value.trim());
+            const cleaned = value.trim();
+            if (!cleaned) return null;
+            const n = Number(cleaned);
             return Number.isFinite(n) ? n : null;
         }
         return null;
@@ -131,11 +133,12 @@
 
     function getSbdTotalSeries(programs) {
         const unit = getUnit();
+        const wKeys = ["actual_weight", "prescribed_weight", "weight"];
         const points = programs.map((program) => {
             const exercises = getExercisesFromProgram(program);
-            const s = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[0].matchers)), ["actual_weight", "prescribed_weight"]);
-            const b = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[1].matchers)), ["actual_weight", "prescribed_weight"]);
-            const d = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[2].matchers)), ["actual_weight", "prescribed_weight"]);
+            const s = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[0].matchers)), wKeys);
+            const b = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[1].matchers)), wKeys);
+            const d = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[2].matchers)), wKeys);
             if (s === null || b === null || d === null) return null;
             return {x: program.week, y: s + b + d};
         }).filter(Boolean);
@@ -159,9 +162,10 @@
             const bwKg = unit === "lbs" ? bwRaw / 2.2046 : bwRaw;
 
             const exercises = getExercisesFromProgram(program);
-            const s = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[0].matchers)), ["actual_weight", "prescribed_weight"]);
-            const b = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[1].matchers)), ["actual_weight", "prescribed_weight"]);
-            const d = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[2].matchers)), ["actual_weight", "prescribed_weight"]);
+            const wKeys = ["actual_weight", "prescribed_weight", "weight"];
+            const s = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[0].matchers)), wKeys);
+            const b = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[1].matchers)), wKeys);
+            const d = getSeriesValue(getTopSet(findExerciseByMatchers(exercises, liftConfig[2].matchers)), wKeys);
             if (s === null || b === null || d === null) return null;
 
             const totalKg = unit === "lbs" ? (s + b + d) / 2.2046 : (s + b + d);
@@ -249,13 +253,13 @@
         });
     }
 
-    function renderChart(containerId, series, yAxisLabel) {
+    function renderChart(containerId, series, yAxisLabel, emptyMessage) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
         const allPoints = series.flatMap((entry) => entry.points.filter((p) => p.y !== null));
         if (!allPoints.length) {
-            container.innerHTML = "<div class=\"chart-empty\">Add more data to see this chart.</div>";
+            container.innerHTML = "<div class=\"chart-empty\">" + (emptyMessage || "Add more data to see this chart.") + "</div>";
             return;
         }
 
@@ -391,19 +395,19 @@
         renderChart("liftProgressChart", data.liftSeries, "Top Set Weight (" + unit + ")");
 
         renderLegend("analyticsSbdLegend", data.sbdSeries);
-        renderChart("sbdTotalChart", data.sbdSeries, "SBD Total (" + unit + ")");
+        renderChart("sbdTotalChart", data.sbdSeries, "SBD Total (" + unit + ")", "Record top sets for Squat, Bench Press, and Deadlift in the same week to see your competition total.");
 
         renderLegend("analyticsWilksLegend", data.wilksSeries);
-        renderChart("wilksChart", data.wilksSeries, "Wilks Score");
+        renderChart("wilksChart", data.wilksSeries, "Wilks Score", "Requires SBD top sets plus bodyweight logged in a weekly check-in.");
 
         renderLegend("analyticsVolumeLegend", data.daySeries);
         renderChart("dayVolumeChart", data.daySeries, "Daily Volume (" + unit + " × reps)");
 
         renderLegend("analyticsRpeLegend", data.rpeSeries);
-        renderChart("rpeChart", data.rpeSeries, "Average RPE");
+        renderChart("rpeChart", data.rpeSeries, "Average RPE", "Add RPE values to your sets in the tracker to see weekly average RPE.");
 
         renderLegend("analyticsBodyweightLegend", data.bodyweightSeries);
-        renderChart("bodyweightChart", data.bodyweightSeries, "Bodyweight (" + unit + ")");
+        renderChart("bodyweightChart", data.bodyweightSeries, "Bodyweight (" + unit + ")", "Log your bodyweight in the weekly check-in to see this trend.");
     }
 
     function initAnalytics() {
