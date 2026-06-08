@@ -1285,6 +1285,72 @@ td input {
         background: var(--error);
         color: #ffffff;
     }
+
+    /* ── Headings (hardcoded dark values invisible on dark bg) ── */
+    h1 {
+        color: #ecf2fb;
+    }
+
+    h2 {
+        color: #b8cee8;
+    }
+
+    h3 {
+        color: #9ab8d8;
+    }
+
+    /* ── Brand name on dark mobile header ── */
+    .brand {
+        color: var(--ink);
+    }
+
+    /* ── Miscellaneous hardcoded dark labels ── */
+    .chart-legend-item {
+        color: var(--ink-muted);
+    }
+
+    .checkin-field label {
+        color: var(--ink-muted);
+    }
+
+    /* ── Desktop: page card and content area ── */
+    .page {
+        background: rgba(22, 28, 38, 0.96);
+        border-color: rgba(45, 58, 74, 0.7);
+        box-shadow:
+            0 24px 48px rgba(0, 0, 0, 0.5),
+            0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .content {
+        background: var(--surface);
+    }
+
+    /* ── Mobile: sticky exercise title ── */
+    .exercise-title {
+        background: rgba(20, 28, 40, 0.97);
+        border-bottom-color: var(--outline);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── Mobile: exercise table row cards ── */
+    .exercise-table tr {
+        background: var(--surface-container);
+        border-color: var(--outline);
+        box-shadow: none;
+    }
+
+    .exercise-table td {
+        border-bottom-color: rgba(45, 58, 74, 0.6);
+    }
+
+    .exercise-table td::before {
+        color: var(--ink-muted);
+    }
+
+    .exercise-table tr.is-complete {
+        border-color: #2a5e3e;
+    }
 }
 
 /* ─── Analytics settings row ─── */
