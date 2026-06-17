@@ -95,7 +95,7 @@
             return {
                 lift: liftEntry.lift,
                 top_set_weight: getFirstPresentValue(topSet, ["actual_weight", "prescribed_weight", "weight"]),
-                reps_completed: getFirstPresentValue(topSet, ["reps", "actual_reps"]),
+                reps_completed: getFirstPresentValue(topSet, ["reps", "actual_reps", "target_reps"]),
                 RPE: getFirstPresentValue(
                     {top_set_RPE: matchedExercise.exercise.top_set_RPE, RPE: topSet ? topSet.RPE : ""},
                     ["top_set_RPE", "RPE"]
@@ -300,6 +300,12 @@
         scheduleSave();
     }
 
+    function refreshCheckIn() {
+        if (window.WorkoutApp.selectedCheckInWeek !== null) {
+            loadAndRenderCheckIn(window.WorkoutApp.selectedCheckInWeek);
+        }
+    }
+
     function initCheckIn() {
         window.WorkoutApp.checkInData = cloneTemplate();
         document.getElementById("copyCheckInBtn").addEventListener("click", copyCheckIn);
@@ -308,9 +314,11 @@
             window.WorkoutApp.selectedCheckInWeek = parseInt(event.target.value, 10);
             loadAndRenderCheckIn(window.WorkoutApp.selectedCheckInWeek);
         });
+        window.WorkoutApp.onProgramsLoaded = populateWeekSelector;
         populateWeekSelector();
     }
 
     window.WorkoutApp.populateCheckInWeeks = populateWeekSelector;
+    window.WorkoutApp.refreshCheckIn = refreshCheckIn;
     window.WorkoutApp.initCheckIn = initCheckIn;
 })();

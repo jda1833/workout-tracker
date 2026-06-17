@@ -41,6 +41,10 @@
         const resolvedPageId = isMobileTrackerOnlyMode() ? "trackerPage" : pageId;
         setActivePage(resolvedPageId);
 
+        if (resolvedPageId === "checkInPage" && typeof window.WorkoutApp.refreshCheckIn === "function") {
+            window.WorkoutApp.refreshCheckIn();
+        }
+
         const nextPath = pageRoutes[resolvedPageId] || "/";
         const nextSearch = resolvedPageId === "trackerPage" ? window.location.search : "";
         const nextUrl = nextPath + nextSearch;
