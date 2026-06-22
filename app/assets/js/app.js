@@ -1,11 +1,18 @@
 (function () {
-    function renderVersion() {
+    async function renderVersion() {
         const versionNode = document.getElementById("appVersion");
-        if (!versionNode) {
-            return;
+        if (!versionNode) return;
+        try {
+            const res = await fetch("/version");
+            if (res.ok) {
+                const data = await res.json();
+                versionNode.textContent = "Version " + data.version;
+                return;
+            }
+        } catch {
+            // fall through to fallback
         }
-
-        versionNode.textContent = "Version " + (window.WorkoutApp.version || "1");
+        versionNode.textContent = "Version " + (window.WorkoutApp.version || "dev");
     }
 
     function syncMobileStickyOffset() {

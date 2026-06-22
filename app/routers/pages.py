@@ -1,7 +1,8 @@
+import os
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 router = APIRouter()
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -77,6 +78,11 @@ def read_analytics():
 @router.get("/tools", response_class=HTMLResponse)
 def read_tools():
     return render_index("toolsPage")
+
+
+@router.get("/version")
+def read_version():
+    return JSONResponse({"version": os.environ.get("APP_VERSION", "dev")})
 
 
 @router.get("/favicon.ico", include_in_schema=False)
