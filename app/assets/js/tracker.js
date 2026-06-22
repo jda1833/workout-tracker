@@ -50,6 +50,27 @@
         return setItem.complete === true;
     }
 
+    function dayIsStarted(day) {
+        if (!Array.isArray(day.exercises)) return false;
+        return day.exercises.some((exercise) =>
+            Array.isArray(exercise.sets) &&
+            exercise.sets.some((setItem) => hasCompletedReps(setItem) || isManuallyCompleted(setItem))
+        );
+    }
+
+    function findFirstIncompleteDay(programs) {
+        const sorted = programs.slice().sort((a, b) => a.week - b.week);
+        for (const program of sorted) {
+            if (!program.json_data || !Array.isArray(program.json_data.days)) continue;
+            for (let dayIndex = 0; dayIndex < program.json_data.days.length; dayIndex++) {
+                if (!dayIsStarted(program.json_data.days[dayIndex])) {
+                    return {week: program.week, dayIndex};
+                }
+            }
+        }
+        return null;
+    }
+
     function updateCompletedRowState(row, setItem) {
         row.classList.toggle("is-complete", hasCompletedReps(setItem) || isManuallyCompleted(setItem));
     }
@@ -82,7 +103,17 @@
         if (window.WorkoutApp.programs.length) {
             const requestedWeek = getTrackerParamsFromUrl().week;
             const matchingWeek = window.WorkoutApp.programs.find((p) => p.week === requestedWeek);
-            window.WorkoutApp.selectedWeek = matchingWeek ? matchingWeek.week : window.WorkoutApp.programs[0].week;
+            if (matchingWeek) {
+                window.WorkoutApp.selectedWeek = matchingWeek.week;
+            } else {
+                const incomplete = findFirstIncompleteDay(window.WorkoutApp.programs);
+                if (incomplete) {
+                    window.WorkoutApp.selectedWeek = incomplete.week;
+                    window.WorkoutApp.selectedDayIndex = incomplete.dayIndex;
+                } else {
+                    window.WorkoutApp.selectedWeek = window.WorkoutApp.programs[0].week;
+                }
+            }
             weekSelect.value = window.WorkoutApp.selectedWeek;
             populateDays();
             setTrackerStatus("");
