@@ -2,10 +2,12 @@ services:
   workout-tracker:
     pull_policy: build
     build:
-      context: https://github.com/jda1833/workout-tracker.git#v3.6
-      dockerfile: Dockerfile
+      context: https://github.com/jda1833/workout-tracker.git#v3.6.1
+      dockerfile: DockerFile
       args:
-        APP_VERSION: v3.6
+        APP_VERSION: v3.6.1
+    environment:
+      - APP_VERSION=v3.6.1
     ports:
       - 8000:8000
     volumes:
