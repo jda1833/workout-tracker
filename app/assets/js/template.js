@@ -50,13 +50,6 @@ window.WeeklyCheckInTemplate = {
             "reps_completed": "",
             "RPE": "",
             "notes": ""
-        },
-        {
-            "lift": "Overhead Press",
-            "top_set_weight": "",
-            "reps_completed": "",
-            "RPE": "",
-            "notes": ""
         }
     ]
 };
