@@ -101,14 +101,8 @@
         });
 
         if (window.WorkoutApp.programs.length) {
-            const requestedWeek = getTrackerParamsFromUrl().week;
-            const matchingWeek = window.WorkoutApp.programs.find((p) => p.week === requestedWeek);
-            if (matchingWeek) {
-                window.WorkoutApp.selectedWeek = matchingWeek.week;
-            } else {
-                const latestProgram = window.WorkoutApp.programs.reduce((a, b) => (b.week > a.week ? b : a));
-                window.WorkoutApp.selectedWeek = latestProgram.week;
-            }
+            const latestProgram = window.WorkoutApp.programs.reduce((a, b) => (b.week > a.week ? b : a));
+            window.WorkoutApp.selectedWeek = latestProgram.week;
             weekSelect.value = window.WorkoutApp.selectedWeek;
             populateDays();
             setTrackerStatus("");
