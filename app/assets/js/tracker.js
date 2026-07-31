@@ -75,6 +75,26 @@
         row.classList.toggle("is-complete", hasCompletedReps(setItem) || isManuallyCompleted(setItem));
     }
 
+    async function loadExerciseNotes() {
+        try {
+            const res = await fetch("/exercise-notes/");
+            if (res.ok) {
+                window.WorkoutApp.exerciseNotes = await res.json();
+            }
+        } catch {
+            window.WorkoutApp.exerciseNotes = {};
+        }
+    }
+
+    function saveExerciseNote(exerciseName, note) {
+        window.WorkoutApp.exerciseNotes[exerciseName] = note;
+        fetch("/exercise-notes/" + encodeURIComponent(exerciseName), {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({note}),
+        }).catch(() => {});
+    }
+
     function filterWeekSelect() {
         const filter = document.getElementById("weekFilter");
         const weekSelect = document.getElementById("weekSelect");
@@ -87,6 +107,7 @@
     }
 
     async function loadPrograms() {
+        await loadExerciseNotes();
         const res = await fetch("/programs/");
         window.WorkoutApp.programs = await res.json();
 
@@ -284,6 +305,25 @@
 
             table.appendChild(tbody);
             card.appendChild(table);
+
+            const noteKey = exercise.name.trim();
+            const noteWrapper = document.createElement("div");
+            noteWrapper.className = "exercise-note-wrapper";
+            const noteInput = document.createElement("input");
+            noteInput.type = "text";
+            noteInput.maxLength = 100;
+            noteInput.className = "exercise-note-input";
+            noteInput.placeholder = "Setup note (100 chars)";
+            noteInput.value = (window.WorkoutApp.exerciseNotes || {})[noteKey] || "";
+            noteInput.setAttribute("aria-label", exercise.name + " setup note");
+            let noteTimer = null;
+            noteInput.addEventListener("input", () => {
+                clearTimeout(noteTimer);
+                noteTimer = setTimeout(() => saveExerciseNote(noteKey, noteInput.value), 600);
+            });
+            noteWrapper.appendChild(noteInput);
+            card.appendChild(noteWrapper);
+
             container.appendChild(card);
         });
     }

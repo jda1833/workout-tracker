@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from . import database, models
-from .routers import pages, programs, uploads, checkins, export_data
+from .routers import pages, programs, uploads, checkins, export_data, exercise_notes
 
 app = FastAPI()
 
@@ -19,3 +19,4 @@ app.include_router(programs.router)
 app.include_router(uploads.router)
 app.include_router(checkins.router)
 app.include_router(export_data.router)
+app.include_router(exercise_notes.router)

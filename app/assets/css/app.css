@@ -337,6 +337,24 @@ button:focus-visible {
     border-bottom: 1px solid rgba(199, 208, 220, 0.8);
 }
 
+.exercise-note-wrapper {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid rgba(199, 208, 220, 0.4);
+}
+
+.exercise-note-input {
+    width: 100%;
+    font-size: 0.78rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0.75;
+}
+
+.exercise-note-input:focus {
+    opacity: 1;
+}
+
 table {
     width: 100%;
     border-collapse: separate;
