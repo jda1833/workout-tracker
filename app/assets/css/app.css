@@ -338,9 +338,9 @@ button:focus-visible {
 }
 
 .exercise-note-wrapper {
-    margin-top: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid rgba(199, 208, 220, 0.4);
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid rgba(199, 208, 220, 0.4);
 }
 
 .exercise-note-input {
