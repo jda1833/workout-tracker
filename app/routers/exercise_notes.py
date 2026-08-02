@@ -9,6 +9,7 @@ router = APIRouter()
 
 
 class NoteBody(BaseModel):
+    exercise_name: str
     note: str = Field(max_length=100)
 
 
@@ -18,15 +19,15 @@ def list_notes(db: Session = Depends(get_db)):
     return {row.exercise_name: row.note for row in rows}
 
 
-@router.post("/exercise-notes/{exercise_name}")
-def save_note(exercise_name: str, body: NoteBody, db: Session = Depends(get_db)):
+@router.post("/exercise-notes/")
+def save_note(body: NoteBody, db: Session = Depends(get_db)):
     existing = db.query(models.ExerciseNote).filter(
-        models.ExerciseNote.exercise_name == exercise_name
+        models.ExerciseNote.exercise_name == body.exercise_name
     ).first()
     if existing:
         existing.note = body.note
     else:
-        existing = models.ExerciseNote(exercise_name=exercise_name, note=body.note)
+        existing = models.ExerciseNote(exercise_name=body.exercise_name, note=body.note)
         db.add(existing)
     db.commit()
     return {"status": "ok"}

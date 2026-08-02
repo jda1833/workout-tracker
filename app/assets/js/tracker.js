@@ -67,10 +67,10 @@
 
     function saveExerciseNote(exerciseName, note) {
         window.WorkoutApp.exerciseNotes[exerciseName] = note;
-        fetch("/exercise-notes/" + encodeURIComponent(exerciseName), {
+        fetch("/exercise-notes/", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({note}),
+            body: JSON.stringify({exercise_name: exerciseName, note}),
         }).catch(() => {});
     }
 
