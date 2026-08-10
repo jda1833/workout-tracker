@@ -313,7 +313,6 @@
             window.WorkoutApp.selectedCheckInWeek = parseInt(event.target.value, 10);
             loadAndRenderCheckIn(window.WorkoutApp.selectedCheckInWeek);
         });
-        window.WorkoutApp.onProgramsLoaded = populateWeekSelector;
         populateWeekSelector();
     }
 
