@@ -1,5 +1,6 @@
 (function () {
-    const ROOT_KEYS = new Set(["week", "days"]);
+    const ROOT_KEYS = new Set(["week", "training_maxes", "notes", "days"]);
+    const TRAINING_MAX_KEYS = new Set(["squat", "bench", "deadlift"]);
     const DAY_KEYS = new Set(["day", "focus", "exercises"]);
     const EXERCISE_KEYS = new Set(["name", "sets"]);
     const SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE", "complete"]);
@@ -29,6 +30,25 @@
 
         if (!Number.isInteger(parsed.week)) {
             return "JSON must include an integer 'week'.";
+        }
+
+        if (parsed.notes !== undefined && typeof parsed.notes !== "string") {
+            return "'notes' must be a string.";
+        }
+
+        if (parsed.training_maxes !== undefined) {
+            if (typeof parsed.training_maxes !== "object" || parsed.training_maxes === null || Array.isArray(parsed.training_maxes)) {
+                return "'training_maxes' must be an object.";
+            }
+            const unexpectedTmKey = findUnexpectedKey(parsed.training_maxes, TRAINING_MAX_KEYS);
+            if (unexpectedTmKey) {
+                return "training_maxes." + unexpectedTmKey + " is not allowed.";
+            }
+            for (const key of TRAINING_MAX_KEYS) {
+                if (key in parsed.training_maxes && !isNumberOrString(parsed.training_maxes[key])) {
+                    return "training_maxes." + key + " must be a number or string.";
+                }
+            }
         }
 
         if (!Array.isArray(parsed.days) || parsed.days.length === 0) {

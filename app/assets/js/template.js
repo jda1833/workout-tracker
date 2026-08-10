@@ -1,5 +1,11 @@
 window.WorkoutTemplate = {
     "week": 1,
+    "training_maxes": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+    },
+    "notes": "",
     "days": [
         {
             "day": "Monday",
