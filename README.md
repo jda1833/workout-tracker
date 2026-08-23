@@ -61,7 +61,9 @@ Both Compose files now use persistent SQLite storage via a named Docker volume, 
 - `GET /programs/` lists all stored programs
 - `GET /programs/{week}` fetches a program JSON payload by week
 - `POST /update-program/{program_id}` updates a program's JSON payload
-- `DELETE /programs/{program_id}` deletes a stored program by id
+- `DELETE /programs/{program_id}` moves a stored program to Deleted Weeks
+- `POST /programs/{program_id}/restore` restores a deleted program
+- `DELETE /programs/{program_id}/permanent` permanently removes a deleted program
 
 ## Expected Upload Shape
 ```json

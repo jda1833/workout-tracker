@@ -80,3 +80,17 @@ def restore_program(program_id: int, db: Session = Depends(get_db)):
     program.deleted = False
     db.commit()
     return {"status": "restored"}
+
+
+@router.delete("/programs/{program_id}/permanent")
+def permanently_delete_program(program_id: int, db: Session = Depends(get_db)):
+    """Permanently remove a program that has already been soft-deleted."""
+    program = db.query(models.Program).filter(models.Program.id == program_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    if not program.deleted:
+        raise HTTPException(status_code=400, detail="Only deleted programs can be permanently removed")
+
+    db.delete(program)
+    db.commit()
+    return {"status": "permanently_deleted"}

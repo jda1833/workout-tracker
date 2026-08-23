@@ -1028,9 +1028,23 @@ td input {
     font-size: 0.84rem;
 }
 
+.btn-remove-permanently {
+    width: auto;
+    min-height: 36px;
+    margin-left: var(--space-2);
+    padding: 0 14px;
+    background: var(--error);
+    font-size: 0.84rem;
+}
+
 .btn-restore:hover,
 .btn-restore:focus-visible {
     background: #004d45;
+}
+
+.btn-remove-permanently:hover,
+.btn-remove-permanently:focus-visible {
+    background: #8d1f19;
 }
 
 #showDeletedBtn {

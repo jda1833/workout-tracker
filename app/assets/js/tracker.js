@@ -369,6 +369,33 @@
                     setTrackerStatus("Week " + program.week + " restored.");
                 };
                 row.appendChild(restoreBtn);
+
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.className = "btn-remove-permanently";
+                removeBtn.textContent = "Remove permanently";
+                removeBtn.onclick = async () => {
+                    const confirmed = window.confirm(
+                        "Permanently remove Week " + program.week + "? This cannot be undone."
+                    );
+                    if (!confirmed) return;
+
+                    try {
+                        const removeRes = await fetch("/programs/" + program.id + "/permanent", {
+                            method: "DELETE",
+                        });
+                        if (!removeRes.ok) {
+                            const err = await removeRes.json().catch(() => ({detail: "Remove failed"}));
+                            setTrackerStatus("Could not permanently remove week: " + (err.detail || "Unknown error"));
+                            return;
+                        }
+                        renderDeletedWeeks();
+                        setTrackerStatus("Week " + program.week + " permanently removed.");
+                    } catch {
+                        setTrackerStatus("Could not permanently remove week: network error.");
+                    }
+                };
+                row.appendChild(removeBtn);
                 container.appendChild(row);
             });
         } catch {
