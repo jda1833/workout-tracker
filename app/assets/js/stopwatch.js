@@ -85,10 +85,16 @@
             render();
         }
 
+        function restart() {
+            reset();
+            start();
+        }
+
         startButton.addEventListener("click", start);
         stopButton.addEventListener("click", stop);
         resetButton.addEventListener("click", reset);
 
+        window.WorkoutApp.restartStopwatch = restart;
         render();
     }
 

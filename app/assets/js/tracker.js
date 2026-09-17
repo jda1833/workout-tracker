@@ -246,6 +246,9 @@
                 completeInput.onchange = async (e) => {
                     exercise.sets[setIndex].complete = e.target.checked;
                     updateCompletedRowState(row, exercise.sets[setIndex]);
+                    if (e.target.checked && typeof window.WorkoutApp.restartStopwatch === "function") {
+                        window.WorkoutApp.restartStopwatch();
+                    }
                     await updateProgramOnServer();
                 };
                 completeCell.appendChild(completeInput);
