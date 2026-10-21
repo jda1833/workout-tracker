@@ -20,7 +20,8 @@ window.WorkoutTemplate = {
                             "prescribed_weight": 310,
                             "actual_weight": "",
                             "reps": "",
-                            "RPE": ""
+                            "RPE": "",
+                            "mean_velocity": ""
                         }
                     ]
                 }
