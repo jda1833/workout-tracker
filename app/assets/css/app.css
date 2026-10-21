@@ -677,6 +677,10 @@ td input {
         margin-top: 2px;
     }
 
+    .exercise-table .hide-mobile {
+        display: none;
+    }
+
     .exercise-table tr.is-complete {
         border-color: #a8d2b2;
         background: var(--success-soft);

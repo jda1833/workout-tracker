@@ -219,11 +219,13 @@
             setKeys.forEach((key) => {
                 const th = document.createElement("th");
                 th.textContent = key;
+                if (key === "complete") th.className = "hide-mobile";
                 headRow.appendChild(th);
             });
 
             const e1rmHeader = document.createElement("th");
             e1rmHeader.textContent = "e1RM";
+            e1rmHeader.className = "hide-mobile";
             headRow.appendChild(e1rmHeader);
 
             thead.appendChild(headRow);
@@ -259,7 +261,7 @@
                 // e1RM cell created before key loop so it's in closure scope for onchange handlers
                 const e1rmCell = document.createElement("td");
                 e1rmCell.dataset.label = "e1RM";
-                e1rmCell.className = "e1rm-cell";
+                e1rmCell.className = "e1rm-cell hide-mobile";
 
                 function refreshE1rm() {
                     if (typeof window.WorkoutApp.calcE1RM !== "function") return;
@@ -276,6 +278,7 @@
                 setKeys.forEach((key) => {
                     const cell = document.createElement("td");
                     cell.dataset.label = key;
+                    if (key === "complete") cell.className = "hide-mobile";
                     const input = document.createElement("input");
                     input.value = setItem[key] || "";
                     if (key === "mean_velocity") input.placeholder = "m/s";
