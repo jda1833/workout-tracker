@@ -144,6 +144,15 @@
         return changed;
     }
 
+    // The exercise objects the check-in reads for each main lift; the tracker uses this too.
+    function getMainLiftExercises(program) {
+        const exerciseEntries = flattenExercises(program);
+        return Object.values(liftMatchers)
+            .map((matchers) => findExerciseByMatchers(exerciseEntries, matchers))
+            .filter(Boolean)
+            .map((entry) => entry.exercise);
+    }
+
     function findLiftSource(lift) {
         const matchers = liftMatchers[lift] || [];
         return findExerciseByMatchers(flattenExercises(getSelectedProgram()), matchers);
@@ -418,6 +427,7 @@
         populateWeekSelector();
     }
 
+    window.WorkoutApp.getMainLiftExercises = getMainLiftExercises;
     window.WorkoutApp.populateCheckInWeeks = populateWeekSelector;
     window.WorkoutApp.refreshCheckIn = refreshCheckIn;
     window.WorkoutApp.initCheckIn = initCheckIn;

@@ -1,4 +1,7 @@
 (function () {
+    // Logged only for the main lifts on mobile; accessories keep just the prescription
+    const MAIN_LIFT_ONLY_KEYS = ["actual_weight", "reps", "RPE", "mean_velocity", "velocity_drop_pct"];
+
     function setTrackerStatus(text) {
         document.getElementById("trackerStatus").textContent = text;
     }
@@ -164,7 +167,14 @@
 
         syncTrackerUrl(true);
 
+        const mainLiftExercises = typeof window.WorkoutApp.getMainLiftExercises === "function"
+            ? window.WorkoutApp.getMainLiftExercises(weekData)
+            : [];
+
         dayData.exercises.forEach((exercise) => {
+            const isMainLift = mainLiftExercises.includes(exercise);
+            const hideOnMobile = (key) => key === "complete" || (!isMainLift && MAIN_LIFT_ONLY_KEYS.includes(key));
+
             const card = document.createElement("div");
             card.className = "program-card";
 
@@ -221,7 +231,7 @@
             setKeys.forEach((key) => {
                 const th = document.createElement("th");
                 th.textContent = key;
-                if (key === "complete") th.className = "hide-mobile";
+                if (hideOnMobile(key)) th.className = "hide-mobile";
                 headRow.appendChild(th);
             });
 
@@ -280,7 +290,7 @@
                 setKeys.forEach((key) => {
                     const cell = document.createElement("td");
                     cell.dataset.label = key;
-                    if (key === "complete") cell.className = "hide-mobile";
+                    if (hideOnMobile(key)) cell.className = "hide-mobile";
                     const input = document.createElement("input");
                     input.value = setItem[key] || "";
                     if (key === "mean_velocity") input.placeholder = "m/s";
