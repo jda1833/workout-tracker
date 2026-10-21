@@ -130,6 +130,7 @@
                     )
                     : "",
                 mean_velocity: getFirstPresentValue(topSet, ["mean_velocity"]),
+                velocity_drop_pct: getFirstPresentValue(topSet, ["velocity_drop_pct"]),
             };
 
             Object.keys(values).forEach((key) => {
@@ -355,6 +356,7 @@
             fields.appendChild(createReadOnlyField("reps_completed", liftEntry.reps_completed));
             fields.appendChild(createReadOnlyField("RPE", liftEntry.RPE));
             fields.appendChild(createReadOnlyField("mean_velocity (m/s)", liftEntry.mean_velocity, true));
+            fields.appendChild(createReadOnlyField("velocity_drop_pct (%)", liftEntry.velocity_drop_pct, true));
             fields.appendChild(createField("notes", liftEntry.notes, (v) => { liftEntry.notes = v; }, true));
 
             liftCard.appendChild(fields);

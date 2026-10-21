@@ -205,8 +205,10 @@
             const thead = document.createElement("thead");
             const headRow = document.createElement("tr");
             const setKeys = Object.keys(exercise.sets[0]);
-            // Older weeks predate mean_velocity; always show it so it can be logged
-            if (!setKeys.includes("mean_velocity")) setKeys.push("mean_velocity");
+            // Older weeks predate the velocity fields; always show them so they can be logged
+            ["mean_velocity", "velocity_drop_pct"].forEach((key) => {
+                if (!setKeys.includes(key)) setKeys.push(key);
+            });
 
             const setNumberHeader = document.createElement("th");
             setNumberHeader.textContent = "Set";
@@ -282,6 +284,7 @@
                     const input = document.createElement("input");
                     input.value = setItem[key] || "";
                     if (key === "mean_velocity") input.placeholder = "m/s";
+                    if (key === "velocity_drop_pct") input.placeholder = "%";
                     input.setAttribute("aria-label", exercise.name + " " + key + " set " + (setIndex + 1));
                     input.onchange = async (e) => {
                         exercise.sets[setIndex][key] = e.target.value;

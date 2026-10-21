@@ -2,7 +2,7 @@ ROOT_KEYS = {"week", "days"}
 DAY_KEYS = {"day", "focus", "exercises"}
 EXERCISE_KEYS = {"name", "sets"}
 REQUIRED_SET_KEYS = {"percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"}
-OPTIONAL_SET_KEYS = {"complete", "mean_velocity"}
+OPTIONAL_SET_KEYS = {"complete", "mean_velocity", "velocity_drop_pct"}
 SET_KEYS = REQUIRED_SET_KEYS | OPTIONAL_SET_KEYS
 
 
@@ -113,6 +113,10 @@ def validate_program_payload(data: dict):
                 if "mean_velocity" in set_item and not _is_number_or_string(set_item["mean_velocity"]):
                     errors.append(
                         f"'days[{i}].exercises[{j}].sets[{k}].mean_velocity' must be a number or string."
+                    )
+                if "velocity_drop_pct" in set_item and not _is_number_or_string(set_item["velocity_drop_pct"]):
+                    errors.append(
+                        f"'days[{i}].exercises[{j}].sets[{k}].velocity_drop_pct' must be a number or string."
                     )
                 if "complete" in set_item and not isinstance(set_item["complete"], bool):
                     errors.append(f"'days[{i}].exercises[{j}].sets[{k}].complete' must be a boolean.")

@@ -3,7 +3,7 @@
     const TRAINING_MAX_KEYS = new Set(["squat", "bench", "deadlift"]);
     const DAY_KEYS = new Set(["day", "focus", "exercises"]);
     const EXERCISE_KEYS = new Set(["name", "sets"]);
-    const SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE", "mean_velocity", "complete"]);
+    const SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE", "mean_velocity", "velocity_drop_pct", "complete"]);
     const REQUIRED_SET_KEYS = new Set(["percent", "target_reps", "prescribed_weight", "actual_weight", "reps", "RPE"]);
 
     function setStatus(text) {
@@ -128,6 +128,9 @@
                     }
                     if ("mean_velocity" in setItem && !isNumberOrString(setItem.mean_velocity)) {
                         return "Set 'mean_velocity' must be a number or string.";
+                    }
+                    if ("velocity_drop_pct" in setItem && !isNumberOrString(setItem.velocity_drop_pct)) {
+                        return "Set 'velocity_drop_pct' must be a number or string.";
                     }
                 }
             }

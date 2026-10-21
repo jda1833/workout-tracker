@@ -15,7 +15,8 @@
                             "actual_weight": "",
                             "reps": "",
                             "RPE": "",
-                            "mean_velocity": ""
+                            "mean_velocity": "",
+                            "velocity_drop_pct": ""
                         }
                     ]
                 }

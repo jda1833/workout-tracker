@@ -85,7 +85,7 @@ Both Compose files now use persistent SQLite storage via a named Docker volume, 
         {
           "name": "Back Squat (5/3/1)",
           "sets": [
-            {"percent": 65, "target_reps": 5, "prescribed_weight": 310, "actual_weight": "", "reps": "", "RPE": "", "mean_velocity": ""}
+            {"percent": 65, "target_reps": 5, "prescribed_weight": 310, "actual_weight": "", "reps": "", "RPE": "", "mean_velocity": "", "velocity_drop_pct": ""}
           ]
         }
       ]

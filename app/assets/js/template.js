@@ -21,7 +21,8 @@ window.WorkoutTemplate = {
                             "actual_weight": "",
                             "reps": "",
                             "RPE": "",
-                            "mean_velocity": ""
+                            "mean_velocity": "",
+                            "velocity_drop_pct": ""
                         }
                     ]
                 }
@@ -43,6 +44,7 @@ window.WeeklyCheckInTemplate = {
             "reps_completed": "",
             "RPE": "",
             "mean_velocity": "",
+            "velocity_drop_pct": "",
             "notes": ""
         },
         {
@@ -51,6 +53,7 @@ window.WeeklyCheckInTemplate = {
             "reps_completed": "",
             "RPE": "",
             "mean_velocity": "",
+            "velocity_drop_pct": "",
             "notes": ""
         },
         {
@@ -59,6 +62,7 @@ window.WeeklyCheckInTemplate = {
             "reps_completed": "",
             "RPE": "",
             "mean_velocity": "",
+            "velocity_drop_pct": "",
             "notes": ""
         }
     ]
