@@ -42,6 +42,7 @@ window.WeeklyCheckInTemplate = {
             "top_set_weight": "",
             "reps_completed": "",
             "RPE": "",
+            "mean_velocity": "",
             "notes": ""
         },
         {
@@ -49,6 +50,7 @@ window.WeeklyCheckInTemplate = {
             "top_set_weight": "",
             "reps_completed": "",
             "RPE": "",
+            "mean_velocity": "",
             "notes": ""
         },
         {
@@ -56,6 +58,7 @@ window.WeeklyCheckInTemplate = {
             "top_set_weight": "",
             "reps_completed": "",
             "RPE": "",
+            "mean_velocity": "",
             "notes": ""
         }
     ]

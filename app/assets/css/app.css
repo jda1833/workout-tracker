@@ -445,6 +445,19 @@ td input {
     border-color: #e7b3b0;
 }
 
+.checkin-field input[readonly] {
+    cursor: default;
+    box-shadow: none;
+}
+
+.checkin-field input[readonly]:not(.is-missing) {
+    background: transparent;
+}
+
+.checkin-source {
+    margin: var(--space-3) 0 0;
+}
+
 .analytics-summary {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     margin: var(--space-5) 0;

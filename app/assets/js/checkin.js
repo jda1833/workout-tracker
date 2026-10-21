@@ -35,9 +35,9 @@
         if (!program || !program.json_data || !Array.isArray(program.json_data.days)) {
             return [];
         }
-        return program.json_data.days.flatMap((day) => {
+        return program.json_data.days.flatMap((day, dayIndex) => {
             const exercises = Array.isArray(day.exercises) ? day.exercises : [];
-            return exercises.map((exercise) => ({day: day.day, focus: day.focus, exercise}));
+            return exercises.map((exercise) => ({day: day.day, dayIndex, focus: day.focus, exercise}));
         });
     }
 
@@ -87,23 +87,58 @@
         data.sleep_avg_hours = getFirstPresentValue(weeklyNotes, ["sleep_avg_hours"]);
         data.notes = getFirstPresentValue(weeklyNotes, ["general_notes", "recovery_notes", "pain_tightness_notes"]);
 
-        data.main_lifts = data.main_lifts.map((liftEntry) => {
+        data.main_lifts.forEach((liftEntry) => {
             const matchedExercise = findExerciseByMatchers(exerciseEntries, liftMatchers[liftEntry.lift] || []);
-            const topSet = matchedExercise ? getTopSet(matchedExercise.exercise) : null;
-            if (!matchedExercise) return liftEntry;
-            return {
-                lift: liftEntry.lift,
-                top_set_weight: getFirstPresentValue(topSet, ["actual_weight", "prescribed_weight", "weight"]),
-                reps_completed: getFirstPresentValue(topSet, ["reps", "actual_reps", "target_reps"]),
-                RPE: getFirstPresentValue(
-                    {top_set_RPE: matchedExercise.exercise.top_set_RPE, RPE: topSet ? topSet.RPE : ""},
-                    ["top_set_RPE", "RPE"]
-                ),
-                notes: [matchedExercise.day, matchedExercise.focus, matchedExercise.exercise.name].filter(Boolean).join(" | "),
-            };
+            if (matchedExercise) {
+                liftEntry.notes = [matchedExercise.day, matchedExercise.focus, matchedExercise.exercise.name].filter(Boolean).join(" | ");
+            }
         });
+        syncLiftsFromProgram(data, program);
 
         return data;
+    }
+
+    // Top set values are read-only in the check-in; they always mirror the logged workout.
+    // Returns true if any value changed.
+    function syncLiftsFromProgram(data, program) {
+        const exerciseEntries = flattenExercises(program);
+        let changed = false;
+
+        data.main_lifts.forEach((liftEntry) => {
+            const matchedExercise = findExerciseByMatchers(exerciseEntries, liftMatchers[liftEntry.lift] || []);
+            const topSet = matchedExercise ? getTopSet(matchedExercise.exercise) : null;
+            const values = {
+                top_set_weight: getFirstPresentValue(topSet, ["actual_weight", "weight"]),
+                reps_completed: getFirstPresentValue(topSet, ["reps", "actual_reps"]),
+                RPE: matchedExercise
+                    ? getFirstPresentValue(
+                        {top_set_RPE: matchedExercise.exercise.top_set_RPE, RPE: topSet ? topSet.RPE : ""},
+                        ["top_set_RPE", "RPE"]
+                    )
+                    : "",
+                mean_velocity: getFirstPresentValue(topSet, ["mean_velocity"]),
+            };
+
+            Object.keys(values).forEach((key) => {
+                if (liftEntry[key] !== values[key]) {
+                    liftEntry[key] = values[key];
+                    changed = true;
+                }
+            });
+        });
+
+        return changed;
+    }
+
+    function findLiftSource(lift) {
+        const matchers = liftMatchers[lift] || [];
+        return findExerciseByMatchers(flattenExercises(getSelectedProgram()), matchers);
+    }
+
+    function goToWorkout(week, dayIndex) {
+        window.history.pushState({}, "", "/?week=" + week + "&day=" + dayIndex);
+        window.WorkoutApp.navigateToPage("trackerPage", true);
+        window.WorkoutApp.applyTrackerStateFromUrl();
     }
 
     async function loadCheckInForWeek(week) {
@@ -146,8 +181,10 @@
         const saved = await loadCheckInForWeek(week);
         if (saved) {
             window.WorkoutApp.checkInData = saved;
+            const changed = syncLiftsFromProgram(saved, getSelectedProgram());
             renderCheckInForm();
             setStatus("Saved check-in loaded for week " + week + ".");
+            if (changed) scheduleSave();
         } else {
             window.WorkoutApp.checkInData = buildCheckInFromProgram(getSelectedProgram());
             renderCheckInForm();
@@ -213,6 +250,49 @@
         return wrapper;
     }
 
+    function createReadOnlyField(labelText, value, isOptional) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "checkin-field";
+
+        const label = document.createElement("label");
+        label.textContent = labelText.replaceAll("_", " ");
+        wrapper.appendChild(label);
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.value = value || "";
+        input.placeholder = "Not logged";
+        if (!isOptional) syncMissingState(input);
+
+        wrapper.appendChild(input);
+        return wrapper;
+    }
+
+    function createWorkoutLink(lift, source) {
+        const message = document.createElement("p");
+        message.className = "note checkin-source";
+
+        if (!source) {
+            message.textContent = "No " + lift + " exercise found in this week's program.";
+            return message;
+        }
+
+        const week = window.WorkoutApp.selectedCheckInWeek;
+        const link = document.createElement("a");
+        link.href = "/?week=" + week + "&day=" + source.dayIndex;
+        link.textContent = source.day + ": " + source.exercise.name;
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            goToWorkout(week, source.dayIndex);
+        });
+
+        message.appendChild(document.createTextNode("Log the last set's weight, reps and RPE in "));
+        message.appendChild(link);
+        return message;
+    }
+
     function createCard(title) {
         const card = document.createElement("section");
         card.className = "checkin-card";
@@ -257,12 +337,18 @@
 
             const fields = document.createElement("div");
             fields.className = "checkin-fields";
-            fields.appendChild(createField("top_set_weight", liftEntry.top_set_weight, (v) => { liftEntry.top_set_weight = v; }));
-            fields.appendChild(createField("reps_completed", liftEntry.reps_completed, (v) => { liftEntry.reps_completed = v; }));
-            fields.appendChild(createField("RPE", liftEntry.RPE, (v) => { liftEntry.RPE = v; }));
+            fields.appendChild(createReadOnlyField("top_set_weight", liftEntry.top_set_weight));
+            fields.appendChild(createReadOnlyField("reps_completed", liftEntry.reps_completed));
+            fields.appendChild(createReadOnlyField("RPE", liftEntry.RPE));
+            fields.appendChild(createReadOnlyField("mean_velocity (m/s)", liftEntry.mean_velocity, true));
             fields.appendChild(createField("notes", liftEntry.notes, (v) => { liftEntry.notes = v; }, true));
 
             liftCard.appendChild(fields);
+
+            const isMissing = !liftEntry.top_set_weight || !liftEntry.reps_completed || !liftEntry.RPE;
+            if (isMissing) {
+                liftCard.appendChild(createWorkoutLink(liftEntry.lift, findLiftSource(liftEntry.lift)));
+            }
             stack.appendChild(liftCard);
         });
 
