@@ -98,6 +98,19 @@
         return data;
     }
 
+    // Saved check-ins may predate changes to the tracked lifts (e.g. Overhead Press was dropped);
+    // keep only the template's lifts, in template order, preserving saved entries.
+    // Returns true if the list changed.
+    function normalizeMainLifts(data) {
+        const saved = Array.isArray(data.main_lifts) ? data.main_lifts : [];
+        const normalized = cloneTemplate().main_lifts.map((templateEntry) =>
+            saved.find((entry) => entry && entry.lift === templateEntry.lift) || templateEntry
+        );
+        const changed = normalized.length !== saved.length || normalized.some((entry, i) => entry !== saved[i]);
+        data.main_lifts = normalized;
+        return changed;
+    }
+
     // Top set values are read-only in the check-in; they always mirror the logged workout.
     // Returns true if any value changed.
     function syncLiftsFromProgram(data, program) {
@@ -181,7 +194,8 @@
         const saved = await loadCheckInForWeek(week);
         if (saved) {
             window.WorkoutApp.checkInData = saved;
-            const changed = syncLiftsFromProgram(saved, getSelectedProgram());
+            const liftsChanged = normalizeMainLifts(saved);
+            const changed = syncLiftsFromProgram(saved, getSelectedProgram()) || liftsChanged;
             renderCheckInForm();
             setStatus("Saved check-in loaded for week " + week + ".");
             if (changed) scheduleSave();
