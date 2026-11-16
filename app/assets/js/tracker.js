@@ -49,12 +49,17 @@
         return String(repsValue || "").trim() !== "";
     }
 
-    function isManuallyCompleted(setItem) {
-        return setItem.complete === true;
+    // An explicit tick/untick wins; otherwise a set counts as done once reps are logged
+    function isSetComplete(setItem) {
+        if (typeof setItem.complete === "boolean") return setItem.complete;
+        return hasCompletedReps(setItem);
     }
 
     function updateCompletedRowState(row, setItem) {
-        row.classList.toggle("is-complete", hasCompletedReps(setItem) || isManuallyCompleted(setItem));
+        const complete = isSetComplete(setItem);
+        row.classList.toggle("is-complete", complete);
+        const checkbox = row.querySelector(".set-complete-checkbox");
+        if (checkbox) checkbox.checked = complete;
     }
 
     async function loadExerciseNotes() {
@@ -214,7 +219,8 @@
             table.className = "exercise-table";
             const thead = document.createElement("thead");
             const headRow = document.createElement("tr");
-            const setKeys = Object.keys(exercise.sets[0]);
+            // "complete" is driven by the Done checkbox, not a text column
+            const setKeys = Object.keys(exercise.sets[0]).filter((key) => key !== "complete");
             // Older weeks predate the velocity fields; always show them so they can be logged
             ["mean_velocity", "velocity_drop_pct"].forEach((key) => {
                 if (!setKeys.includes(key)) setKeys.push(key);
@@ -256,7 +262,7 @@
                 completeCell.dataset.label = "Done";
                 const completeInput = document.createElement("input");
                 completeInput.type = "checkbox";
-                completeInput.checked = isManuallyCompleted(setItem);
+                completeInput.checked = isSetComplete(setItem);
                 completeInput.className = "set-complete-checkbox";
                 completeInput.setAttribute("aria-label", exercise.name + " complete set " + (setIndex + 1));
                 completeInput.onchange = async (e) => {
@@ -298,6 +304,8 @@
                     input.setAttribute("aria-label", exercise.name + " " + key + " set " + (setIndex + 1));
                     input.onchange = async (e) => {
                         exercise.sets[setIndex][key] = e.target.value;
+                        // Logging reps clears a manual override so completion follows the reps again
+                        if (key === "reps") delete exercise.sets[setIndex].complete;
                         updateCompletedRowState(row, exercise.sets[setIndex]);
                         refreshE1rm();
                         await updateProgramOnServer();
