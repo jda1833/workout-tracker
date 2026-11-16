@@ -218,6 +218,16 @@
                 <a class="link-card" href="/export/" target="_blank" rel="noopener noreferrer">
                     <strong>Export All Data</strong><br />Download all programs and check-ins as JSON.
                 </a>
+                <a class="link-card" href="/export/archive/">
+                    <strong>Download Backup (.zip)</strong><br />Each program and check-in as its own JSON file, plus a summary.
+                </a>
+            </div>
+
+            <div class="danger-zone">
+                <h2>Danger Zone</h2>
+                <p class="note">Delete every program, check-in and exercise note to start over at week 1. This cannot be undone &mdash; <a href="/export/archive/">download a backup</a> first.</p>
+                <button id="resetAllBtn" type="button">Delete All Data</button>
+                <p class="note" id="resetStatus" role="status"></p>
             </div>
         </section>
 
@@ -240,6 +250,7 @@
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/upload.js"></script>
 <script src="/assets/js/tools.js"></script>
+<script src="/assets/js/reset.js"></script>
 <script src="/assets/js/stopwatch.js"></script>
 <script src="/assets/js/app.js"></script>
 </body>

@@ -1665,3 +1665,27 @@ input[type="file"]:hover {
     color: var(--ink);
     margin-bottom: var(--space-4);
 }
+
+.danger-zone {
+    margin-top: var(--space-7);
+    padding: var(--space-5);
+    border: 1px solid var(--error);
+    border-radius: var(--radius-md);
+    background: var(--error-soft);
+}
+
+.danger-zone h2 {
+    margin-top: 0;
+    color: var(--error);
+}
+
+#resetAllBtn {
+    width: auto;
+    padding: 0 18px;
+    background: var(--error);
+}
+
+#resetAllBtn:hover,
+#resetAllBtn:focus-visible {
+    background: #8d1f19;
+}
