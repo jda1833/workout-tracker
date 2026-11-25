@@ -407,6 +407,11 @@ td input {
     border-color: #9dcda8;
 }
 
+/* "of N" only shows on the mobile card layout */
+.set-total {
+    display: none;
+}
+
 .set-complete-checkbox {
     width: 22px;
     height: 22px;
@@ -692,6 +697,10 @@ td input {
 
     .exercise-table .hide-mobile {
         display: none;
+    }
+
+    .exercise-table .set-total {
+        display: inline;
     }
 
     .exercise-table tr.is-complete {

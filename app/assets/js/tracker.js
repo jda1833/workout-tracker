@@ -256,6 +256,10 @@
                 const setNumberCell = document.createElement("td");
                 setNumberCell.dataset.label = "Set";
                 setNumberCell.textContent = String(setIndex + 1);
+                const setTotal = document.createElement("span");
+                setTotal.className = "set-total";
+                setTotal.textContent = " of " + exercise.sets.length;
+                setNumberCell.appendChild(setTotal);
                 row.appendChild(setNumberCell);
 
                 const completeCell = document.createElement("td");
