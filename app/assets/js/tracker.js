@@ -64,6 +64,28 @@
         if (card) refreshExerciseProgress(card);
     }
 
+    function setCardCollapsed(card, collapsed) {
+        card.classList.toggle("is-collapsed", collapsed);
+        const toggle = card.querySelector(".exercise-toggle");
+        if (toggle) toggle.setAttribute("aria-expanded", String(!collapsed));
+    }
+
+    // Once the last set of an exercise is done, fold it away and open the next unfinished one
+    function advanceIfExerciseDone(card) {
+        if (!card.classList.contains("is-all-complete")) return;
+        setCardCollapsed(card, true);
+
+        let next = card.nextElementSibling;
+        while (next && next.classList.contains("is-all-complete")) next = next.nextElementSibling;
+        if (!next) return;
+        setCardCollapsed(next, false);
+
+        if (!window.matchMedia("(max-width: 640px)").matches) return;
+        const stickyOffset = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mobile-sticky-offset")) || 0;
+        const top = next.getBoundingClientRect().top + window.scrollY - stickyOffset - 8;
+        window.scrollTo({top, behavior: "smooth"});
+    }
+
     function refreshExerciseProgress(card) {
         const progress = card.querySelector(".exercise-progress");
         if (!progress) return;
@@ -207,10 +229,7 @@
             const toggleProgress = document.createElement("span");
             toggleProgress.className = "exercise-progress";
             toggle.append(toggleName, toggleProgress);
-            toggle.onclick = () => {
-                const collapsed = card.classList.toggle("is-collapsed");
-                toggle.setAttribute("aria-expanded", String(!collapsed));
-            };
+            toggle.onclick = () => setCardCollapsed(card, !card.classList.contains("is-collapsed"));
             header.appendChild(toggle);
             card.appendChild(header);
 
@@ -300,8 +319,10 @@
                 completeInput.className = "set-complete-checkbox";
                 completeInput.setAttribute("aria-label", exercise.name + " complete set " + (setIndex + 1));
                 completeInput.onchange = async (e) => {
+                    const wasAllComplete = card.classList.contains("is-all-complete");
                     exercise.sets[setIndex].complete = e.target.checked;
                     updateCompletedRowState(row, exercise.sets[setIndex]);
+                    if (!wasAllComplete) advanceIfExerciseDone(card);
                     if (e.target.checked && typeof window.WorkoutApp.restartStopwatch === "function") {
                         window.WorkoutApp.restartStopwatch();
                     }
@@ -337,10 +358,12 @@
                     if (key === "velocity_drop_pct") input.placeholder = "%";
                     input.setAttribute("aria-label", exercise.name + " " + key + " set " + (setIndex + 1));
                     input.onchange = async (e) => {
+                        const wasAllComplete = card.classList.contains("is-all-complete");
                         exercise.sets[setIndex][key] = e.target.value;
                         // Logging reps clears a manual override so completion follows the reps again
                         if (key === "reps") delete exercise.sets[setIndex].complete;
                         updateCompletedRowState(row, exercise.sets[setIndex]);
+                        if (!wasAllComplete) advanceIfExerciseDone(card);
                         refreshE1rm();
                         await updateProgramOnServer();
                     };
@@ -358,6 +381,9 @@
             refreshExerciseProgress(card);
             container.appendChild(card);
         });
+
+        const firstOpen = container.querySelector(".program-card:not(.is-all-complete)");
+        if (firstOpen) setCardCollapsed(firstOpen, false);
     }
 
     async function updateProgramOnServer() {
