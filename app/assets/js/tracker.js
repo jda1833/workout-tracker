@@ -60,6 +60,17 @@
         row.classList.toggle("is-complete", complete);
         const checkbox = row.querySelector(".set-complete-checkbox");
         if (checkbox) checkbox.checked = complete;
+        const card = row.closest(".program-card");
+        if (card) refreshExerciseProgress(card);
+    }
+
+    function refreshExerciseProgress(card) {
+        const progress = card.querySelector(".exercise-progress");
+        if (!progress) return;
+        const rows = card.querySelectorAll(".exercise-table tbody tr");
+        const done = card.querySelectorAll(".exercise-table tbody tr.is-complete").length;
+        progress.textContent = rows.length ? done + "/" + rows.length : "";
+        card.classList.toggle("is-all-complete", rows.length > 0 && done === rows.length);
     }
 
     async function loadExerciseNotes() {
@@ -181,12 +192,31 @@
             const hideOnMobile = (key) => key === "complete" || (!isMainLift && MAIN_LIFT_ONLY_KEYS.includes(key));
 
             const card = document.createElement("div");
-            card.className = "program-card";
+            // Collapsing only takes effect on the mobile layout (see app.css)
+            card.className = "program-card is-collapsed";
 
             const header = document.createElement("h3");
             header.className = "exercise-title";
-            header.textContent = exercise.name;
+            const toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "exercise-toggle";
+            toggle.setAttribute("aria-expanded", "false");
+            const toggleName = document.createElement("span");
+            toggleName.className = "exercise-toggle-name";
+            toggleName.textContent = exercise.name;
+            const toggleProgress = document.createElement("span");
+            toggleProgress.className = "exercise-progress";
+            toggle.append(toggleName, toggleProgress);
+            toggle.onclick = () => {
+                const collapsed = card.classList.toggle("is-collapsed");
+                toggle.setAttribute("aria-expanded", String(!collapsed));
+            };
+            header.appendChild(toggle);
             card.appendChild(header);
+
+            const body = document.createElement("div");
+            body.className = "exercise-body";
+            card.appendChild(body);
 
             const noteKey = exercise.name.trim();
             const noteWrapper = document.createElement("div");
@@ -204,13 +234,13 @@
                 noteTimer = setTimeout(() => saveExerciseNote(noteKey, noteInput.value), 600);
             });
             noteWrapper.appendChild(noteInput);
-            card.appendChild(noteWrapper);
+            body.appendChild(noteWrapper);
 
             if (!exercise.sets || !exercise.sets.length) {
                 const empty = document.createElement("p");
                 empty.className = "note";
                 empty.textContent = "No set data available.";
-                card.appendChild(empty);
+                body.appendChild(empty);
                 container.appendChild(card);
                 return;
             }
@@ -324,7 +354,8 @@
             });
 
             table.appendChild(tbody);
-            card.appendChild(table);
+            body.appendChild(table);
+            refreshExerciseProgress(card);
             container.appendChild(card);
         });
     }

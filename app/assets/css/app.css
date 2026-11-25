@@ -337,6 +337,41 @@ button:focus-visible {
     border-bottom: 1px solid rgba(199, 208, 220, 0.8);
 }
 
+/* Title doubles as the mobile collapse toggle; on desktop it reads as plain text */
+.exercise-toggle,
+.exercise-toggle:hover,
+.exercise-toggle:focus-visible {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    text-align: left;
+    box-shadow: none;
+    transform: none;
+    cursor: default;
+    pointer-events: none;
+}
+
+.exercise-toggle-name {
+    flex: 1;
+}
+
+.exercise-progress {
+    color: var(--ink-muted);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.program-card.is-all-complete .exercise-progress {
+    color: var(--success);
+}
+
 .exercise-note-wrapper {
     margin-bottom: var(--space-3);
     padding-bottom: var(--space-3);
@@ -701,6 +736,36 @@ td input {
 
     .exercise-table .set-total {
         display: inline;
+    }
+
+    .exercise-toggle,
+    .exercise-toggle:hover,
+    .exercise-toggle:focus-visible {
+        cursor: pointer;
+        pointer-events: auto;
+    }
+
+    .exercise-toggle::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+        transition: transform 0.18s ease;
+    }
+
+    .program-card.is-collapsed .exercise-toggle::after {
+        transform: rotate(-45deg);
+    }
+
+    .program-card.is-collapsed .exercise-title {
+        margin-bottom: -16px;
+        border-bottom: none;
+    }
+
+    .program-card.is-collapsed .exercise-body {
+        display: none;
     }
 
     .exercise-table tr.is-complete {
